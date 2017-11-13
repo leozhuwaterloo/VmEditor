@@ -8,5 +8,4 @@ cd vmEditor/
 ```
 
 Remeber to ```git pull``` everytime.
-And commit and push after you are done.
-
+And ```git commit``` and ```git push``` after you are done.
