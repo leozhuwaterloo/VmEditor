@@ -50,3 +50,5 @@ Temporary Items
 
 *.o
 *.d
+Makefile
+main
