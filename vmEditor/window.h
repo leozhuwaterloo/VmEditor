@@ -4,6 +4,7 @@
 #include <memory>
 
 class KeyListener;
+class ColorManager;
 
 class Window{
     class Cursor{
@@ -26,10 +27,11 @@ private:
     int maxY, maxX;
     std::unique_ptr<KeyListener> keyListener;
     std::unique_ptr<Cursor> cursor;
+    std::unique_ptr<ColorManager> colorManager;
 public:
-    Window(std::string fileName, std::unique_ptr<KeyListener> keyListener);
+    Window(std::string fileName, std::unique_ptr<KeyListener> keyListener, std::unique_ptr<ColorManager> colorManager);
     ~Window();
-    KeyListener* getKeyListener();
+
     void init();
     void render();
     void refreshCursor();
@@ -38,6 +40,8 @@ public:
     const int getMaxY() const;
     const int getMaxX() const;
     Cursor* getCursor();
+    KeyListener* getKeyListener();
+    ColorManager* getColorManager();
 };
 
 #endif

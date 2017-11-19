@@ -1,5 +1,4 @@
 #include <string>
-#include <memory>
 #include "vm.h"
 using namespace std;
 
@@ -16,8 +15,9 @@ int main(int argc, char **argv){
 	}
 
 
-	unique_ptr<Window> window = make_unique<Window>(fileName, make_unique<KeyListener>());
+	unique_ptr<Window> window = make_unique<Window>(fileName, make_unique<KeyListener>(), make_unique<ColorManager>());
 	initCommands(window->getKeyListener());
+	initColors(window->getColorManager());
 
 	window->init();
 	return 0;

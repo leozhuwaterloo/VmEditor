@@ -3,6 +3,7 @@
 #include <fstream>
 #include <algorithm>
 #include "keylistener.h"
+#include "colormanager.h"
 #include "command.h"
 #include "utils.h"
 
@@ -28,7 +29,7 @@ const int Window::Cursor::getY() const{ return y; }
 const int Window::Cursor::getX() const{ return x; }
 
 
-Window::Window(std::string fileName, std::unique_ptr<KeyListener> keyListener):fileName{fileName}, keyListener{std::move(keyListener)}{
+Window::Window(std::string fileName, std::unique_ptr<KeyListener> keyListener, std::unique_ptr<ColorManager> colorManager):fileName{fileName},keyListener{std::move(keyListener)}, colorManager{std::move(colorManager)}{
     initscr();
     noecho();
     getmaxyx(stdscr, maxY, maxX);
@@ -45,22 +46,19 @@ Window::~Window(){
     endwin();
 }
 
-KeyListener* Window::getKeyListener(){
-    return keyListener.get();
-}
-
 void Window::init(){
+    colorManager->init();
     render();
     keyListener->init(this);
 }
 
 void Window::render(){
     for(int i = 1; i < maxY - 1; ++i){
-        mvprintw(i, 0, "~");
+        colorManager->mvprintColor(i, 0, "~", COLOR_BLUE);
     }
     move(0,0);
 
-    printw(content.c_str());
+    colorManager->print(content);
     refreshCursor();
     refresh();
 }
@@ -70,7 +68,7 @@ void Window::refreshCursor(){
 }
 
 void Window::showStatus(const std::string &status){
-    mvprintw(maxY-1, 0, status.c_str());
+    colorManager->mvprint(maxY-1, 0, status);
     refreshCursor();
     refresh();
 }
@@ -79,3 +77,5 @@ void Window::showStatus(const std::string &status){
 const int Window::getMaxY() const{ return maxY; }
 const int Window::getMaxX() const{ return maxX; }
 Window::Cursor* Window::getCursor() { return cursor.get(); }
+KeyListener* Window::getKeyListener(){ return keyListener.get(); }
+ColorManager* Window::getColorManager(){ return colorManager.get(); }
