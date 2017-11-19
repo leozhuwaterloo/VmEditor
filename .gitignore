@@ -51,6 +51,7 @@ Temporary Items
 *.o
 *.d
 main
+vm
 
 .*
 !/.gitignore

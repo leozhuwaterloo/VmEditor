@@ -1,11 +1,11 @@
 CXX = g++
 CXXFLAGS = -std=c++14 -Wall -g -MMD
-EXEC = main
-OBJECTS = main.o
+EXEC = vm
+OBJECTS = main.o window.o keylistener.o command.o
 DEPENDS = ${OBJECTS:.o=.d}
 
 ${EXEC}: ${OBJECTS}
-	${CXX} ${OBJECTS} -o ${EXEC}
+	${CXX} ${CXXFLAGS} ${OBJECTS} -o ${EXEC} -lncurses
 
 -include ${DEPENDS}
 
