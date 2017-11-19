@@ -1,16 +1,16 @@
 #ifndef KEYLISTENER_H
 #define KEYLISTENER_H
-#include <string>
 #include <map>
+#include <vector>
 #include <memory>
-#include "command.h"
 
+class Command;
 class Window;
 
 class KeyListener{
 private:
-    std::map<std::string, std::unique_ptr<Command>> commands;
-    std::string currCommand;
+    std::map<std::vector<int>, std::unique_ptr<Command>> commands;
+    std::vector<int> currKeys;
 public:
     KeyListener() = default;
     ~KeyListener() = default;

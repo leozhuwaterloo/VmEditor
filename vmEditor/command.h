@@ -2,29 +2,55 @@
 #define COMMAND_H
 #include <string>
 #include <memory>
+#include <initializer_list>
+#include <vector>
 
 class Window;
 
 class Command{
 private:
-    std::string keyString;
+    std::vector<int> keys;
 public:
-    Command(std::string keyString);
+    Command(std::initializer_list<int> keys);
     virtual ~Command() = default;
-    std::string getKeyString() const;
-    virtual void execute(Window *window) const = 0;
+    const std::vector<int>& getKeys() const;
+    virtual void execute(Window *w) const = 0;
 };
 
 class UndoableCommand: public Command{
 public:
-    UndoableCommand(std::string keyString);
-    virtual void reverse_execute(Window *window) const = 0;
+    UndoableCommand(std::initializer_list<int> keys);
+    virtual void reverse_execute(Window *w) const = 0;
 };
 
 class CommandInsert: public Command{
 public:
     CommandInsert();
-    virtual void execute(Window *window) const override;
+    virtual void execute(Window *w) const override;
+};
+
+class CommandUp: public Command{
+public:
+    CommandUp();
+    virtual void execute(Window *w) const override;
+};
+
+class CommandDown: public Command{
+public:
+    CommandDown();
+    virtual void execute(Window *w) const override;
+};
+
+class CommandRight: public Command{
+public:
+    CommandRight();
+    virtual void execute(Window *w) const override;
+};
+
+class CommandLeft: public Command{
+public:
+    CommandLeft();
+    virtual void execute(Window *w) const override;
 };
 
 #endif
