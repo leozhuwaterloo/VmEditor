@@ -1,5 +1,6 @@
 #include "colormanager.h"
 #include <ncurses.h>
+#include <string>
 
 void ColorManager::addColor(const int &fontColor, const int &bgColor){
     colors[fontColor][bgColor] = (++colorCounter);
