@@ -18,11 +18,12 @@ void Window::Cursor::moveTo(const int &y, const int &x){
 void Window::Cursor::moveY(const int &y){
     this->y += y;
     clamp(this->y, 0, window->getMaxY()-1);
+    clamp(this->x, 0, window->getStore()->getLineLength(window->getCursor()->getY()) -1);
     window->refreshCursor();
 }
 void Window::Cursor::moveX(const int &x){
     this->x += x;
-    clamp(this->x, 0, window->getMaxX()-1);
+    clamp(this->x, 0, window->getStore()->getLineLength(window->getCursor()->getY()) -1);
     window->refreshCursor();
 }
 const int Window::Cursor::getY() const{ return y; }

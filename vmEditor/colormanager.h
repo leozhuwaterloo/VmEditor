@@ -5,6 +5,7 @@
 class ColorManager{
 private:
     std::map<int, std::map<int, int>> colors;
+
     size_t colorCounter;
 public:
     ColorManager() = default;

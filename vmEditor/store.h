@@ -1,16 +1,19 @@
 #ifndef STORE_H
 #define STORE_H
 #include <string>
-#include <list>
+#include <vector>
+#include <map>
 
 class Store{
 private:
-    std::list<std::string> store;
+    std::map<int, std::vector<std::string>> strs;
+    size_t currY;
 public:
     Store() = default;
-    Store(std::list<std::string> store);
+    Store(std::map<int, std::vector<std::string>> strs);
     ~Store() = default;
     std::string getRenderString() const;
+    int getLineLength(const int &line) const;
 };
 
 #endif

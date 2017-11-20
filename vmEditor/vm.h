@@ -17,4 +17,7 @@ void initCommands(KeyListener *keyListener){
 void initColors(ColorManager *colorManager){
     colorManager->addColor(COLOR_RED, COLOR_BLACK);
     colorManager->addColor(COLOR_BLUE, COLOR_BLACK);
+    colorManager->addColor(COLOR_MAGENTA, COLOR_BLACK);
+    colorManager->addColor(COLOR_GREEN, COLOR_BLACK);
+    colorManager->addColor(COLOR_YELLOW, COLOR_BLACK);
 }

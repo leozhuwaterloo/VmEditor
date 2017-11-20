@@ -1,5 +1,6 @@
 #include "parser.h"
-#include <list>
+#include <vector>
+#include <map>
 #include <fstream>
 #include "store.h"
 
@@ -17,10 +18,11 @@ std::unique_ptr<Store> DefaultParser::runParse(const std::string &fileName){
     }else {
         std::fstream f {fileName};
         std::string line;
-        std::list<std::string> lst;
+        std::map<int, std::vector<std::string>> strs;
+        int counter = 0;
         while(std::getline(f, line)){
-            lst.push_back(line);
+            strs[counter++].push_back(line);
         }
-        return std::make_unique<Store>(lst);
+        return std::make_unique<Store>(strs);
     }
 }
