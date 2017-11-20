@@ -12,6 +12,17 @@ std::unique_ptr<Store> Parser::parse(const std::string &fileName) {
 std::string Parser::getFileName() const { return fileName; }
 
 
+std::string Parser::getFileType() const {
+    std::string fileName = getFileName();
+    size_t firstDot = fileName.find(".");
+    if(firstDot == std::string::npos){
+        return "";
+    }else{
+        return fileName.substr(firstDot+1, fileName.length() - firstDot - 1);
+    }
+}
+
+
 std::unique_ptr<Store> DefaultParser::runParse(const std::string &fileName){
     if(fileName.empty()){
         return std::make_unique<Store>();

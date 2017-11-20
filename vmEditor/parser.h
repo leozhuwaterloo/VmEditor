@@ -14,6 +14,7 @@ public:
     virtual ~Parser() = default;
     std::unique_ptr<Store> parse(const std::string &fileName);
     std::string getFileName() const;
+    std::string getFileType() const;
 };
 
 class DefaultParser: public Parser{
