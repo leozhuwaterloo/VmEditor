@@ -3,6 +3,7 @@
 #include <sstream>
 #include "highlighter.h"
 
+
 void ColorManager::addColor(const int &fontColor, const int &bgColor){ colors[fontColor][bgColor] = (++colorCounter); }
 
 void ColorManager::addHighlighter(const std::string &fileType, std::unique_ptr<Highlighter> highlighter){ highlighters[fileType].push_back(std::move(highlighter)); }
