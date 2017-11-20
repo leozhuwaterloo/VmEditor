@@ -15,10 +15,10 @@ int main(int argc, char **argv){
 	}
 
 
-	unique_ptr<Window> window = make_unique<Window>(fileName, make_unique<KeyListener>(), make_unique<ColorManager>());
+	unique_ptr<Window> window = make_unique<Window>(make_unique<KeyListener>(), make_unique<ColorManager>(), make_unique<DefaultParser>());
 	initCommands(window->getKeyListener());
 	initColors(window->getColorManager());
 
-	window->init();
+	window->init(fileName);
 	return 0;
 }

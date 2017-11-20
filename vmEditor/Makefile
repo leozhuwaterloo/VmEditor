@@ -1,7 +1,7 @@
 CXX = g++
 CXXFLAGS = -std=c++14 -Wall -g -MMD
 EXEC = vm
-OBJECTS = main.o window.o keylistener.o command.o colormanager.o
+OBJECTS = main.o window.o keylistener.o command.o colormanager.o store.o parser.o
 DEPENDS = ${OBJECTS:.o=.d}
 
 ${EXEC}: ${OBJECTS}

@@ -5,6 +5,8 @@
 
 class KeyListener;
 class ColorManager;
+class Parser;
+class Store;
 
 class Window{
     class Cursor{
@@ -23,16 +25,18 @@ class Window{
     };
 
 private:
-    std::string fileName, content;
     int maxY, maxX;
-    std::unique_ptr<KeyListener> keyListener;
     std::unique_ptr<Cursor> cursor;
+    std::unique_ptr<KeyListener> keyListener;
     std::unique_ptr<ColorManager> colorManager;
+    std::unique_ptr<Parser> parser;
+    std::unique_ptr<Store> store;
 public:
-    Window(std::string fileName, std::unique_ptr<KeyListener> keyListener, std::unique_ptr<ColorManager> colorManager);
+    Window(std::unique_ptr<KeyListener> keyListener,
+        std::unique_ptr<ColorManager> colorManager, std::unique_ptr<Parser> parser);
     ~Window();
 
-    void init();
+    void init(const std::string &fileName);
     void render();
     void refreshCursor();
     void showStatus(const std::string &status);
@@ -40,6 +44,7 @@ public:
     const int getMaxY() const;
     const int getMaxX() const;
     Cursor* getCursor();
+    Store* getStore();
     KeyListener* getKeyListener();
     ColorManager* getColorManager();
 };

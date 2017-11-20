@@ -1,10 +1,10 @@
 #include "window.h"
 #include <ncurses.h>
-#include <fstream>
-#include <algorithm>
 #include "keylistener.h"
 #include "colormanager.h"
 #include "command.h"
+#include "parser.h"
+#include "store.h"
 #include "utils.h"
 
 Window::Cursor::Cursor(int y, int x, Window *window):y{y}, x{x}, window{window}{}
@@ -29,24 +29,21 @@ const int Window::Cursor::getY() const{ return y; }
 const int Window::Cursor::getX() const{ return x; }
 
 
-Window::Window(std::string fileName, std::unique_ptr<KeyListener> keyListener, std::unique_ptr<ColorManager> colorManager):fileName{fileName},keyListener{std::move(keyListener)}, colorManager{std::move(colorManager)}{
+Window::Window(std::unique_ptr<KeyListener> keyListener,
+    std::unique_ptr<ColorManager> colorManager, std::unique_ptr<Parser> parser):
+    keyListener{std::move(keyListener)}, colorManager{std::move(colorManager)}, parser{std::move(parser)}{
     initscr();
     noecho();
     getmaxyx(stdscr, maxY, maxX);
     cursor = std::make_unique<Cursor>(0, 0, this);
-    if(fileName.empty()){
-
-    }else {
-        std::fstream f {fileName};
-        content.assign((std::istreambuf_iterator<char>(f)),(std::istreambuf_iterator<char>()));
-    }
 }
 
 Window::~Window(){
     endwin();
 }
 
-void Window::init(){
+void Window::init(const std::string &fileName){
+    store = std::move(parser->parse(fileName));
     colorManager->init();
     render();
     keyListener->init(this);
@@ -56,9 +53,8 @@ void Window::render(){
     for(int i = 1; i < maxY - 1; ++i){
         colorManager->mvprintColor(i, 0, "~", COLOR_BLUE);
     }
-    move(0,0);
 
-    colorManager->print(content);
+    colorManager->mvprint(0, 0, store->getRenderString());
     refreshCursor();
     refresh();
 }
@@ -77,5 +73,6 @@ void Window::showStatus(const std::string &status){
 const int Window::getMaxY() const{ return maxY; }
 const int Window::getMaxX() const{ return maxX; }
 Window::Cursor* Window::getCursor() { return cursor.get(); }
+Store* Window::getStore() { return store.get(); }
 KeyListener* Window::getKeyListener(){ return keyListener.get(); }
 ColorManager* Window::getColorManager(){ return colorManager.get(); }

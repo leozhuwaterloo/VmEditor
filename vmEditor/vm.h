@@ -2,6 +2,7 @@
 #include "keylistener.h"
 #include "command.h"
 #include "colormanager.h"
+#include "parser.h"
 #include <memory>
 #include <ncurses.h>
 

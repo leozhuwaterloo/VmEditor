@@ -2,7 +2,7 @@
 #include "window.h"
 
 Command::Command(std::initializer_list<int> keys):keys{keys}{}
-UndoableCommand::UndoableCommand(std::initializer_list<int> keys):Command(keys){}
+UndoableCommand::UndoableCommand(std::initializer_list<int> keys):Command{keys}{}
 CommandInsert::CommandInsert():Command{105}{}
 CommandUp::CommandUp():Command{65}{}
 CommandDown::CommandDown():Command{66}{}
