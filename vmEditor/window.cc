@@ -25,7 +25,7 @@ void Window::Cursor::moveTo(const int &y, const int &x){
     window->refreshCursor();
 }
 void Window::Cursor::moveY(const int &y){
-    if(itLst != window->getStore()->getStrs().end() && (this->y + y + window->getStore()->getCurrY()) >= 0){
+    if(itLst != window->getStore()->getStrs().end() && std::next(itLst, y) != window->getStore()->getStrs().end() && (this->y + y + window->getStore()->getCurrY()) >= 0){
         size_t yDiff = 0;
         for(int i = 0; i < std::abs(y); ++i){
             if (y < 0){
@@ -39,23 +39,33 @@ void Window::Cursor::moveY(const int &y){
         this->y += yDiff;
         this->x = preX;
         clamp(this->x, 0, itLst->length()-1);
-        if(this->x == -1) this->x = 0;
+        if(this->x == -1) this->x = 0; //for empty string
         itStr = itLst->begin() + x;
         xLoss = 0;
+        //move on if necessary
         while(this->x >= window->getMaxX()){
             ++xLoss;
             this->x -= window->getMaxX();
             ++this->y;
         }
 
-        if(this->y >= window->getMaxY() - 1){
-            window->getStore()->moveY(1);
+        //move on the store
+        int currLineLength, firstLineLength, counter = 0;
+        if(this->y >= window->getMaxY() - 1 - window->getStore()->getNumInvalid()){
+            currLineLength = itLst->length() / window->getMaxX() + 1;
+            while(currLineLength - window->getStore()->getNumInvalid() > 0){
+                firstLineLength = window->getStore()->getItCurrY()->length() / window->getMaxX() + 1;
+                window->getStore()->moveY(1);
+                currLineLength-=firstLineLength;
+                counter+=firstLineLength;
+            }
+            this->y -= counter;
             window->render();
-            --this->y;
         } else if (this->y < 0){
             window->getStore()->moveY(-1);
+            currLineLength = itLst->length() / window->getMaxX() + 1;
+            this->y += currLineLength;
             window->render();
-            ++this->y;
         }
 
         window->refreshCursor();
@@ -109,8 +119,10 @@ void Window::render(){
     for(int i = 1; i < maxY - 1; ++i){
         colorManager->mvprintColor(i, 0, "~", COLOR_BLUE);
     }
-
-    colorManager->mvprint(0, 0, store->getRenderString(maxY-1));
+    colorManager->mvprint(0, 0, store->getRenderString(maxY, maxX));
+    for(int i = 0; i < store->getNumInvalid(); ++i){
+        colorManager->printColor("@\n", COLOR_BLUE);
+    }
     refreshCursor();
     refresh();
 }

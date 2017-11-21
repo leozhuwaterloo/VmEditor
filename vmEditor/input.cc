@@ -11,6 +11,12 @@
 #define HIGHLIGHTER_H //Test
 #define HIGHLIGHTER /*Test*/
 
+//Test
+
+/*
+I am a comment
+*/
+
 Window::Cursor::Curs1or(int y, int x, Window *window):y{y}, x{x}, window{window}{}
 void Window::Cursor::moveTo(const int &y, const int &x){
     this->y = y;

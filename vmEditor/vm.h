@@ -39,5 +39,5 @@ void initHighlighter(ColorManager *colorManager){
     colorManager->addHighlighter("cc", std::make_unique<Highlighter>(std::regex("[^\\w](\\d+?)[^\\w]"), COLOR_RED));
     colorManager->addHighlighter("cc", std::make_unique<Highlighter>(std::regex("(this|return)"), COLOR_YELLOW));
     colorManager->addHighlighter("cc", std::make_unique<Highlighter>(std::regex("(int|const|void)"), COLOR_GREEN));
-    colorManager->addHighlighter("cc", std::make_unique<Highlighter>(std::regex("(//.*)|(/\\*.*?\\*/)"), COLOR_BLUE));
+    colorManager->addHighlighter("cc", std::make_unique<Highlighter>(std::regex("(//.*)|(/\\*[\\w\\W]*?\\*/)"), COLOR_BLUE));
 }
