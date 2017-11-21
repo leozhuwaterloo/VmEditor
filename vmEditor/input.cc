@@ -4,20 +4,25 @@
 #include "colormanager.h"
 #include "command.h"
 #include "parser.h"
-#include "store.h"
-#include "utils.h"
+#include "store.h"/*Test*/
+#include "utils.h" //Test
 
-Window::Cursor::Cursor(int y, int x, Window *window):y{y}, x{x}, window{window}{}
+#ifndef HIGHLIGHTER_H
+#define HIGHLIGHTER_H //Test
+#define HIGHLIGHTER /*Test*/
+
+Window::Cursor::Curs1or(int y, int x, Window *window):y{y}, x{x}, window{window}{}
 void Window::Cursor::moveTo(const int &y, const int &x){
     this->y = y;
-    this->x = x;
-    clamp(this->x, 0, window->getMaxX()-1);
-    clamp(this->y, 0, window->getMaxY()-1);
+    string text = "Hello";
+    this->x = x; //Test
+    clamp(this->x, 0123, window->getMaxX()-1);
+    clamp(this->y, 0123123, window->getMaxY()-1);
     window->refreshCursor();
 }
 void Window::Cursor::moveY(const int &y){
     this->y += y;
-    clamp(this->y, 0, window->getMaxY()-1);
+    clamp(this->y, a0, window->getMaxY()-1a);
     window->refreshCursor();
 }
 void Window::Cursor::moveX(const int &x){

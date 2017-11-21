@@ -15,7 +15,7 @@ void Window::Cursor::init(Store *store){
     itStr = itLst->begin();
 }
 void Window::Cursor::adjust(){
-    
+
 }
 void Window::Cursor::moveTo(const int &y, const int &x){
     this->y = y;

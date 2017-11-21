@@ -22,30 +22,35 @@ void ColorManager::init(const std::string &fileType){
 
 void ColorManager::print(const std::string &str){
     std::string _str = str;
+    std::map<int, std::map<int, std::pair<int, int>>> highlight;
     for(auto &it: highlighters[fileType]){
-        it->apply(_str);
+        it->apply(_str, highlight);
     }
 
     std::stringstream ss{_str};
     ss >> std::noskipws;
-    char c, preC;
+    char c;
+    int counter = 0;
+    int fontColor, bgColor, to;
     bool colorMode = false;
-    int fontColor, bgColor;
     while(ss >> c){
-        if(c == '\201'){
-            if(preC == '\201'){
-                ss >> fontColor;
-                ss >> c >> bgColor;
-                attron(COLOR_PAIR(colors[fontColor][bgColor]));
-                colorMode = true;
-            } else if(colorMode){
+        if(colorMode){
+            --to;
+            if(to == 0){
                 attroff(COLOR_PAIR(colors[fontColor][bgColor]));
                 colorMode = false;
             }
-        }else{
-            addch(c);
         }
-        preC = c;
+        if(highlight.find(counter) != highlight.end()){
+             std::pair<int, std::pair<int, int>> pair = *(highlight[counter].begin());
+             to = pair.first;
+             fontColor = pair.second.first;
+             bgColor = pair.second.second;
+             attron(COLOR_PAIR(colors[fontColor][bgColor]));
+             colorMode = true;
+        }
+        ++counter;
+        addch(c);
     }
 }
 

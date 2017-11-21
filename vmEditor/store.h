@@ -6,13 +6,15 @@
 class Store{
 private:
     std::list<std::string> strs;
-    size_t currY;
+    //int currY;
 public:
     Store() = default;
     Store(std::list<std::string> strs);
     ~Store() = default;
     std::string getRenderString() const;
     std::list<std::string>& getStrs();
+    //int getCurrY() const;
+    //void moveY(const int &y);
 };
 
 #endif
