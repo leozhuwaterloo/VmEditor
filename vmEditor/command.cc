@@ -8,6 +8,7 @@ CommandUp::CommandUp():Command{65}{}
 CommandDown::CommandDown():Command{66}{}
 CommandRight::CommandRight():Command{67}{}
 CommandLeft::CommandLeft():Command{68}{}
+CommandResize::CommandResize():Command{410}{}
 
 const std::vector<int>& Command::getKeys() const{
     return keys;
@@ -21,3 +22,5 @@ void CommandUp::execute(Window *w) const{ w->getCursor()->moveY(-1); }
 void CommandDown::execute(Window *w) const{ w->getCursor()->moveY(1); }
 void CommandRight::execute(Window *w) const{ w->getCursor()->moveX(1); }
 void CommandLeft::execute(Window *w) const{ w->getCursor()->moveX(-1); }
+
+void CommandResize::execute(Window *w) const{ w->resize(); }

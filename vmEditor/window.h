@@ -2,6 +2,7 @@
 #define WINDOW_H
 #include <string>
 #include <memory>
+#include <list>
 
 class KeyListener;
 class ColorManager;
@@ -13,10 +14,16 @@ class Window{
     private:
         int y;
         int x;
+        int xLoss;
+        int preX;
         Window *window;
+        std::list<std::string>::iterator itLst;
+        std::string::iterator itStr;
     public:
         Cursor(int y, int x, Window *window);
         ~Cursor() = default;
+        void init(Store *store);
+        void adjust();
         void moveTo(const int &y, const int &x);
         void moveY(const int &y);
         void moveX(const int &x);
@@ -38,6 +45,7 @@ public:
 
     void init(const std::string &fileName);
     void render();
+    void resize();
     void refreshCursor();
     void showStatus(const std::string &status);
 

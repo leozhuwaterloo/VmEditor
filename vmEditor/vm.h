@@ -18,6 +18,7 @@ void initCommands(KeyListener *keyListener){
     keyListener->addCommand(std::make_unique<CommandDown>());
     keyListener->addCommand(std::make_unique<CommandLeft>());
     keyListener->addCommand(std::make_unique<CommandRight>());
+    keyListener->addCommand(std::make_unique<CommandResize>());
 }
 
 void initColors(ColorManager *colorManager){

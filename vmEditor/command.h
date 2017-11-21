@@ -53,4 +53,10 @@ public:
     virtual void execute(Window *w) const override;
 };
 
+class CommandResize: public Command{
+public:
+    CommandResize();
+    virtual void execute(Window *w) const override;
+};
+
 #endif
