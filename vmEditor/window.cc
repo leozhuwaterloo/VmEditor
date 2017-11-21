@@ -25,7 +25,7 @@ void Window::Cursor::moveTo(const int &y, const int &x){
     window->refreshCursor();
 }
 void Window::Cursor::moveY(const int &y){
-    if(itLst != window->getStore()->getStrs().end() && (this->y + y) >= 0){
+    if(itLst != window->getStore()->getStrs().end() && (this->y + y + window->getStore()->getCurrY()) >= 0){
         size_t yDiff = 0;
         for(int i = 0; i < std::abs(y); ++i){
             if (y < 0){
@@ -47,6 +47,17 @@ void Window::Cursor::moveY(const int &y){
             this->x -= window->getMaxX();
             ++this->y;
         }
+
+        if(this->y >= window->getMaxY() - 1){
+            window->getStore()->moveY(1);
+            window->render();
+            --this->y;
+        } else if (this->y < 0){
+            window->getStore()->moveY(-1);
+            window->render();
+            ++this->y;
+        }
+
         window->refreshCursor();
     }
 }
@@ -99,7 +110,7 @@ void Window::render(){
         colorManager->mvprintColor(i, 0, "~", COLOR_BLUE);
     }
 
-    colorManager->mvprint(0, 0, store->getRenderString());
+    colorManager->mvprint(0, 0, store->getRenderString(maxY-1));
     refreshCursor();
     refresh();
 }
