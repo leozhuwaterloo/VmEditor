@@ -41,7 +41,7 @@ void ColorManager::print(const std::string &str){
                 colorMode = false;
             }
         }
-        if(highlight.find(counter) != highlight.end()){
+        if(!colorMode && highlight.find(counter) != highlight.end()){
              std::pair<int, std::pair<int, int>> pair = *(highlight[counter].begin());
              to = pair.first;
              fontColor = pair.second.first;
