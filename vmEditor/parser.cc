@@ -5,6 +5,7 @@
 
 std::unique_ptr<Store> Parser::parse(const std::string &fileName) {
     this->fileName = fileName;
+    std::system(("dos2unix " + fileName + " >&- 2>&-").c_str());
     return runParse(fileName);
 }
 

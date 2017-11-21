@@ -9,14 +9,14 @@ class Highlighter;
 class ColorManager{
 private:
     std::map<int, std::map<int, int>> colors;
-    std::map<std::string, std::vector<std::unique_ptr<Highlighter>>> highlighters;
+    std::map<std::string, std::vector<std::shared_ptr<Highlighter>>> highlighters;
     std::string fileType;
     size_t colorCounter;
 public:
     ColorManager() = default;
     ~ColorManager() = default;
     void addColor(const int &fontColor, const int &bgColor);
-    void addHighlighter(const std::string &fileType, std::unique_ptr<Highlighter> highlighter);
+    void addHighlighter(std::shared_ptr<Highlighter> highlighter, std::vector<std::string> &&fileTypes);
     void init(const std::string &fileType);
     void print(const std::string &str);
     void mvprint(const int &y, const int &x, const std::string &str);
