@@ -41,6 +41,9 @@ void Window::Cursor::moveX(const int &x){
 const int Window::Cursor::getY() const{ return y; }
 const int Window::Cursor::getX() const{ return x; }
 
+/*
+I am a comment
+*/
 
 Window::Window(std::unique_ptr<KeyListener> keyListener,
     std::unique_ptr<ColorManager> colorManager, std::unique_ptr<Parser> parser):

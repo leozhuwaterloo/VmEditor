@@ -2,6 +2,7 @@
 #include <ncurses.h>
 #include "keylistener.h"
 #include "colormanager.h"
+#include "highlightergroup.h"
 #include "highlighter.h"
 #include "command.h"
 #include "parser.h"
@@ -112,7 +113,7 @@ Window::~Window(){
 void Window::init(const std::string &fileName){
     store = std::move(parser->parse(fileName));
     cursor->init(store.get());
-    colorManager->init(parser->getFileType());
+    colorManager->init(parser->getFileName());
     render();
     keyListener->init(this);
 }

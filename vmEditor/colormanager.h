@@ -4,20 +4,20 @@
 #include <vector>
 #include <memory>
 #include <string>
-class Highlighter;
+class HighlighterGroup;
 
 class ColorManager{
 private:
     std::map<int, std::map<int, int>> colors;
-    std::map<std::string, std::vector<std::shared_ptr<Highlighter>>> highlighters;
-    std::string fileType;
+    std::vector<std::unique_ptr<HighlighterGroup>> highlighterGroups;
+    std::string fileName;
     size_t colorCounter;
 public:
     ColorManager() = default;
     ~ColorManager() = default;
     void addColor(const int &fontColor, const int &bgColor);
-    void addHighlighter(std::shared_ptr<Highlighter> highlighter, std::vector<std::string> &&fileTypes);
-    void init(const std::string &fileType);
+    void addHighlighterGroup(std::unique_ptr<HighlighterGroup> highlighterGroup);
+    void init(const std::string &fileName);
     void print(const std::string &str);
     void mvprint(const int &y, const int &x, const std::string &str);
     void printColor(const std::string &str, const int &fontColor, const int &bgColor);

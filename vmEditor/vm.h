@@ -2,6 +2,7 @@
 #include "keylistener.h"
 #include "command.h"
 #include "colormanager.h"
+#include "highlightergroup.h"
 #include "highlighter.h"
 #include "parser.h"
 #include <memory>
@@ -33,14 +34,20 @@ void initColors(ColorManager *colorManager){
 
 
 void initHighlighter(ColorManager *colorManager){
-    colorManager->addHighlighter(std::make_shared<Highlighter>(std::regex("(#include)\\s+?"), COLOR_MAGENTA, COLOR_BLACK), {"cc", "h"});
-    colorManager->addHighlighter(std::make_shared<Highlighter>(std::regex("(#ifdef|#ifndef|#if|#define|#undef|#endif)"), COLOR_MAGENTA), {"cc", "h"});
-    colorManager->addHighlighter(std::make_shared<Highlighter>(std::regex("(#ifdef|#ifndef|#if|#define|#undef|#endif)\\s+?(.*?)[\\s$]"), COLOR_MAGENTA), {"cc", "h"});
-    colorManager->addHighlighter(std::make_shared<Highlighter>(std::regex("#include\\s+?(<.*?>)"), COLOR_RED), {"cc", "h"});
-    colorManager->addHighlighter(std::make_shared<Highlighter>(std::regex("(\".*?\")"), COLOR_RED), {"cc", "h"});
-    colorManager->addHighlighter(std::make_shared<Highlighter>(std::regex("[^\\w](\\d+?)[^\\w]"), COLOR_RED), {"cc", "h"});
-    colorManager->addHighlighter(std::make_shared<Highlighter>(std::regex("(true|false)"), COLOR_RED), {"cc", "h"});
-    colorManager->addHighlighter(std::make_shared<Highlighter>(std::regex("(this|return|private|public|protected|default)"), COLOR_YELLOW), {"cc", "h"});
-    colorManager->addHighlighter(std::make_shared<Highlighter>(std::regex("(int|const|void|bool|class)"), COLOR_GREEN), {"cc", "h"});
-    colorManager->addHighlighter(std::make_shared<Highlighter>(std::regex("(//.*)|(/\\*[\\w\\W]*?\\*/)"), COLOR_BLUE), {"cc", "h"});
+    std::unique_ptr<HighlighterGroup> highlighterGroup = std::make_unique<HighlighterGroup>(std::initializer_list<std::regex>({
+        std::regex(".*?\\.cc"), std::regex(".*?\\.h")}));
+
+
+    highlighterGroup->addHighlighter(std::make_unique<Highlighter>(std::regex("(#include)\\s+?"), COLOR_MAGENTA));
+    highlighterGroup->addHighlighter(std::make_unique<Highlighter>(std::regex("(#ifdef|#ifndef|#if|#define|#undef|#endif)"), COLOR_MAGENTA));
+    highlighterGroup->addHighlighter(std::make_unique<Highlighter>(std::regex("(#ifdef|#ifndef|#if|#define|#undef|#endif)\\s+?(.*?)[\\s$]"), COLOR_MAGENTA));
+    highlighterGroup->addHighlighter(std::make_unique<Highlighter>(std::regex("#include\\s+?(<.*?>)"), COLOR_RED));
+    highlighterGroup->addHighlighter(std::make_unique<Highlighter>(std::regex("(\".*?\"|true|false)"), COLOR_RED));
+    highlighterGroup->addHighlighter(std::make_unique<Highlighter>(std::regex("\\W(\\d+?)\\W"), COLOR_RED));
+    highlighterGroup->addHighlighter(std::make_unique<Highlighter>(std::regex("(this|return|private|public|protected|default)"), COLOR_YELLOW));
+    highlighterGroup->addHighlighter(std::make_unique<Highlighter>(std::regex("(int|const|void|bool|class)"), COLOR_GREEN));
+    highlighterGroup->addHighlighter(std::make_unique<Highlighter>(std::regex("(//.*)|(/\\*[\\w\\W]*?\\*/)"), COLOR_BLUE));
+    highlighterGroup->addHighlighter(std::make_unique<Highlighter>(std::regex("([^(/\\*)]*?\\*/)|(/\\*[^(\\*/)]*?)$"), COLOR_BLUE));
+
+    colorManager->addHighlighterGroup(std::move(highlighterGroup));
 }

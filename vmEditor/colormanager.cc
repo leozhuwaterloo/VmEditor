@@ -1,17 +1,14 @@
 #include "colormanager.h"
 #include <ncurses.h>
 #include <sstream>
+#include "highlightergroup.h"
 #include "highlighter.h"
 
 void ColorManager::addColor(const int &fontColor, const int &bgColor){ colors[fontColor][bgColor] = (++colorCounter); }
 
-void ColorManager::addHighlighter(std::shared_ptr<Highlighter> highlighter, std::vector<std::string> &&fileTypes){
-    for(auto &fileType: fileTypes){
-        highlighters[fileType].push_back(highlighter);
-    }
-}
+void ColorManager::addHighlighterGroup(std::unique_ptr<HighlighterGroup> highlighterGroup){ highlighterGroups.push_back(std::move(highlighterGroup));}
 
-void ColorManager::init(const std::string &fileType){
+void ColorManager::init(const std::string &fileName){
     start_color();
 
     for(auto &it1 : colors){
@@ -20,14 +17,14 @@ void ColorManager::init(const std::string &fileType){
         }
     }
 
-    this->fileType = fileType;
+    this->fileName = fileName;
 }
 
 void ColorManager::print(const std::string &str){
     std::string _str = str;
     std::map<int, std::map<int, std::pair<int, int>>> highlight;
-    for(auto &it: highlighters[fileType]){
-        it->apply(_str, highlight);
+    for(auto &it: highlighterGroups){
+        if(it->match(fileName)) it->apply(_str, highlight);
     }
 
     std::stringstream ss{_str};
