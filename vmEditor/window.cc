@@ -9,7 +9,7 @@
 #include "utils.h"
 #include <stdlib.h>
 
-Window::Cursor::Cursor(int y, int x, Window *window):y{y}, x{x}, window{window}{}
+Window::Cursor::Cursor(int y, int x, Window *window):y{y}, x{x}, xLoss{0}, preX{x}, window{window}{}
 void Window::Cursor::init(Store *store){
     itLst = store->getStrs().begin();
     itStr = itLst->begin();
@@ -72,7 +72,9 @@ void Window::Cursor::moveY(const int &y){
     }
 }
 void Window::Cursor::moveX(const int &x){
-    if(itStr != itLst->end() && (itStr + x) != itLst->end() && (this->x + x + window->getMaxX() * xLoss) >= 0){
+    int nextX = clampReturn(preX, 0, itLst->length()-1) + x;
+
+    if(clampReturn(nextX, 0, itLst->length()-1) == nextX){
         while((this->x + x) >= window->getMaxX()){
             ++xLoss;
             this->x -= window->getMaxX();
@@ -138,7 +140,7 @@ void Window::refreshCursor(){
 }
 
 void Window::showStatus(const std::string &status){
-    colorManager->mvprint(maxY-1, 0, status);
+    colorManager->mvprint(maxY-1, 0, status + "\n");
     refreshCursor();
     refresh();
 }

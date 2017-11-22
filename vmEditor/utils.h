@@ -5,3 +5,14 @@ void clamp(int &x, const int &low, const int &high){
         x = high;
     }
 }
+
+
+int clampReturn(const int &x, const int &low, const int &high){
+    int _x = x;
+    if(_x < low){
+        _x = low;
+    } else if (_x >= high){
+        _x = high;
+    }
+    return _x;
+}

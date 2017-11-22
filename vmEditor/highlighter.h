@@ -1,8 +1,6 @@
 #ifndef HIGHLIGHTER_H
 #define HIGHLIGHTER_H
 #include <regex>
-#include <vector>
-#include <initializer_list>
 #include <string>
 #include <map>
 
