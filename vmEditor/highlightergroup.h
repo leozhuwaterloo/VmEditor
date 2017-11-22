@@ -4,6 +4,7 @@
 #include <vector>
 #include <memory>
 #include <initializer_list>
+#include <map>
 
 class Highlighter;
 
