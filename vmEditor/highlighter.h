@@ -4,6 +4,8 @@
 #include <vector>
 #include <initializer_list>
 #include <string>
+#include <map>
+
 class Highlighter{
 private:
     std::regex reg;
