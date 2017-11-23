@@ -23,31 +23,30 @@ void Window::Cursor::adjust(){
 
     while (outerIt != itLst) {
         newY += outerIt->length() / window->getMaxX() + 1;
-        if (newY >= window->getMaxY() - window->getStore()->getNumInvalid()) break;
+        if (newY >= window->getMaxY() - 1 - window->getStore()->getNumInvalid()) break;
         ++outerIt;
     }
 
-    if (outerIt == itLst) {
-        std::string::const_iterator innerIt= outerIt->begin();
-        while (innerIt != itStr) {
-            if (newX == window->getMaxX()) {
-                ++newY;
-                ++xLoss;
-                newX = 0;
-            } else {
-                ++newX;
-            }
-            ++innerIt;
-        }
-        y = newY;
-        x = newX;
-        preX = window->getMaxX() * xLoss + x;
-    } else {
-        y = window->getMaxY() - 1 - window->getStore()->getNumInvalid();
-        xLoss = outerIt->length() / window->getMaxX();
-        preX = outerIt->length();
-        x = preX - xLoss * window->getMaxX();
+    while (outerIt != itLst) {
+      window->getStore()->moveY(1);
+      newY = window->getMaxY() - 2 - window->getStore()->getNumInvalid();
+      ++outerIt;
     }
+
+    std::string::const_iterator innerIt= outerIt->begin();
+    while (innerIt != itStr) {
+        if (newX == window->getMaxX()-1) {
+            ++newY;
+            ++xLoss;
+            newX = 0;
+        } else {
+            ++newX;
+        }
+        ++innerIt;
+    }
+    y = newY;
+    x = newX;
+    preX = window->getMaxX() * xLoss + x;
 }
 void Window::Cursor::moveTo(const int &y, const int &x){
     this->y = y;
