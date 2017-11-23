@@ -123,8 +123,31 @@ void Window::Cursor::moveX(const int &x){
         window->refreshCursor();
     }
 }
+void Window::Cursor::moveOne(const int &n) {
+    if (n > 0) {
+        if (x >= itLst->length()-1 && itLst != window->getStore()->getStrs().end()) {
+            moveY(1);
+            moveTo(y, 0);
+            itStr = itLst->begin();
+        } else if (x >= itLst->length()-1) {
+            return;
+        } else {
+            moveX(1);
+        }
+    } else if (n < 0) {
+        if (x <= 0 && itLst != window->getStore()->getStrs().begin()) {
+            moveY(-1);
+            while (itStr != itLst->end()) moveX(1);
+        } else if (x <= 0) {
+            return;
+        } else {
+            moveX(-1);
+        }
+    }
+}
 const int Window::Cursor::getY() const{ return y; }
 const int Window::Cursor::getX() const{ return x; }
+const int Window::Cursor::currChar() const{ return *itStr; }
 
 
 Window::Window(std::unique_ptr<KeyListener> keyListener,

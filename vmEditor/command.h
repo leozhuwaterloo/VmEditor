@@ -59,4 +59,16 @@ public:
     virtual void execute(Window *w) const override;
 };
 
+class CommandW: public Command {
+public:
+    CommandW();
+    virtual void execute(Window *w) const override;
+};
+
+class CommandB: public Command {
+public:
+    CommandB();
+    virtual void execute(Window *w) const override;
+};
+
 #endif

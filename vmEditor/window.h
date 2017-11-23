@@ -27,8 +27,10 @@ class Window{
         void moveTo(const int &y, const int &x);
         void moveY(const int &y);
         void moveX(const int &x);
+        void moveOne(const int &n);
         const int getY() const;
         const int getX() const;
+        const int currChar() const;
     };
 
 private:
