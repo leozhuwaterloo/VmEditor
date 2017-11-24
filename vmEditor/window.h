@@ -31,6 +31,11 @@ class Window{
         const int getY() const;
         const int getX() const;
         const int currChar() const;
+        bool isEmptyLine() const;
+        bool isAtBegin() const;
+        bool isAtEnd() const;
+        bool isAtLineBegin() const;
+        bool isAtLineEnd() const;
     };
 
 private:

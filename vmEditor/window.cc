@@ -125,24 +125,31 @@ void Window::Cursor::moveX(const int &x){
 }
 void Window::Cursor::moveOne(const int &n) {
     if (n > 0) {
+        if (isAtEnd()) return;
         int oldX = x;
         moveX(1);
         if (x == oldX) {
             moveY(1);
-            while (itStr != itLst->begin()) moveX(-1);
+            while (!isAtLineBegin()) moveX(-1);
         }
     } else if (n < 0) {
+        if (isAtBegin()) return;
         int oldX = x;
         moveX(-1);
         if (x == oldX) {
           moveY(-1);
-          while (itStr != itLst->end()) moveX(1);
+          while (!isAtLineEnd()) moveX(1);
         }
     }
 }
 const int Window::Cursor::getY() const{ return y; }
 const int Window::Cursor::getX() const{ return x; }
 const int Window::Cursor::currChar() const{ return *itStr; }
+bool Window::Cursor::isEmptyLine() const { return itLst->length() == 0; }
+bool Window::Cursor::isAtBegin() const { return itStr == window->getStore()->getStrs().begin()->begin(); }
+bool Window::Cursor::isAtEnd() const { return itStr == window->getStore()->getStrs().end()->end()-1; }
+bool Window::Cursor::isAtLineBegin() const { return itStr == itLst->begin(); }
+bool Window::Cursor::isAtLineEnd() const { return itLst->length() == 0 || itStr == itLst->end() - 1; }
 
 
 Window::Window(std::unique_ptr<KeyListener> keyListener,

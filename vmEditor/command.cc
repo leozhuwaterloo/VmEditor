@@ -29,32 +29,58 @@ void CommandLeft::execute(Window *w) const{ w->getCursor()->moveX(-1); }
 void CommandResize::execute(Window *w) const{ w->resize(); }
 
 void CommandW::execute(Window *w) const{
+    if (w->getCursor()->isEmptyLine()) {
+        w->getCursor()->moveOne(1);
+        return;
+    }
     if (std::isalnum(w->getCursor()->currChar())) {
         do {
             w->getCursor()->moveOne(1);
-        } while (std::isalnum(w->getCursor()->currChar()));
+            if(w->getCursor()->isAtLineEnd()) {
+                w->getCursor()->moveOne(1);
+                break;
+            }
+        } while (!w->getCursor()->isAtEnd() && std::isalnum(w->getCursor()->currChar()));
     } else {
         do {
             w->getCursor()->moveOne(1);
-        } while (!std::isalnum(w->getCursor()->currChar()));
+            if (w->getCursor()->isEmptyLine()) return;
+            if(w->getCursor()->isAtLineEnd()) {
+                w->getCursor()->moveOne(1);
+                break;
+            }
+        } while (!w->getCursor()->isAtEnd() && !std::isalnum(w->getCursor()->currChar()));
     }
 
-    while (std::isspace(w->getCursor()->currChar())) {
+    while (!w->getCursor()->isAtEnd() && std::isspace(w->getCursor()->currChar())) {
         w->getCursor()->moveOne(1);
     }
 }
 void CommandB::execute(Window *w) const{
+    if (w->getCursor()->isEmptyLine()) {
+        w->getCursor()->moveOne(-1);
+        return;
+    }
     if (std::isalnum(w->getCursor()->currChar())) {
         do {
             w->getCursor()->moveOne(-1);
-        } while (std::isalnum(w->getCursor()->currChar()));
+            if(w->getCursor()->isAtLineBegin()) {
+                w->getCursor()->moveOne(-1);
+                break;
+            }
+        } while (!w->getCursor()->isAtBegin() && std::isalnum(w->getCursor()->currChar()));
     } else {
         do {
             w->getCursor()->moveOne(-1);
-        } while (!std::isalnum(w->getCursor()->currChar()));
+            if (w->getCursor()->isEmptyLine()) return;
+            if(w->getCursor()->isAtLineBegin()) {
+                w->getCursor()->moveOne(-1);
+                break;
+            }
+        } while (!w->getCursor()->isAtBegin() && !std::isalnum(w->getCursor()->currChar()));
     }
 
-    while (std::isspace(w->getCursor()->currChar())) {
+    while (!w->getCursor()->isAtBegin() && std::isspace(w->getCursor()->currChar())) {
         w->getCursor()->moveOne(-1);
     }
 }
