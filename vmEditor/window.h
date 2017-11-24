@@ -31,6 +31,8 @@ class Window{
         void moveLineBegin();
         void moveLineEnd();
         void moveFirstNonWs();
+        void insert(char c);
+        void moveOnePastEnd();
         const int getY() const;
         const int getX() const;
         const int currChar() const;

@@ -1,14 +1,15 @@
 #include "command.h"
 #include "window.h"
 #include <locale>
+#include <ncurses.h>
 
 Command::Command(std::initializer_list<int> keys):keys{keys}{}
 UndoableCommand::UndoableCommand(std::initializer_list<int> keys):Command{keys}{}
 CommandInsert::CommandInsert():Command{105}{}
-CommandUp::CommandUp():Command{65}{}
-CommandDown::CommandDown():Command{66}{}
-CommandRight::CommandRight():Command{67}{}
-CommandLeft::CommandLeft():Command{68}{}
+CommandUp::CommandUp():Command{259}{}
+CommandDown::CommandDown():Command{258}{}
+CommandRight::CommandRight():Command{261}{}
+CommandLeft::CommandLeft():Command{260}{}
 CommandResize::CommandResize():Command{410}{}
 CommandW::CommandW():Command{119}{}
 CommandB::CommandB():Command{98}{}
@@ -22,6 +23,24 @@ const std::vector<int>& Command::getKeys() const{
 
 void CommandInsert::execute(Window *w) const{
     w->showStatus("-- INSERT -- ");
+    int ch;
+    while (ch = getch()) {
+        if (ch == 27) break;  // escape
+        else if (ch == 259) w->getCursor()->moveY(-1);
+        else if (ch == 258) w->getCursor()->moveY(1);
+        else if (ch == 260) w->getCursor()->moveX(-1);
+        else if (ch == 261)
+            w->getCursor()->isAtLineEnd() ? w->getCursor()->moveOnePastEnd() : w->getCursor()->moveX(1);
+        else if (ch == 8 || ch == 127) {    // backspace
+            w->showStatus("backspace");
+        } else {
+            w->getCursor()->insert(ch);
+            w->render();
+            w->showStatus("inserting...");
+        }
+    }
+    w->getCursor()->moveX(-1);
+    w->showStatus("");
 }
 
 void CommandUp::execute(Window *w) const{ w->getCursor()->moveY(-1); }

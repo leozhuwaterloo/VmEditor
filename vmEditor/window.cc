@@ -149,6 +149,26 @@ void Window::Cursor::moveFirstNonWs() {
     moveLineBegin();
     while (!isAtLineEnd() && std::isspace(currChar())) moveX(1);
 }
+void Window::Cursor::insert(char c) {
+    if (c == 10) {  // return
+        window->showStatus("return");
+    } else {
+        itStr = itLst->insert(itStr, c);
+        isAtLineEnd() ? moveOnePastEnd() : moveX(1);
+    }
+}
+void Window::Cursor::moveOnePastEnd() {
+    if (isAtLineEnd()) {
+        if (x == window->getMaxX()) {
+            ++y;
+            x = 0;
+        } else {
+            ++x;
+        }
+        ++itStr;
+        window->refreshCursor();
+    }
+}
 const int Window::Cursor::getY() const{ return y; }
 const int Window::Cursor::getX() const{ return x; }
 const int Window::Cursor::currChar() const{ return *itStr; }
@@ -164,6 +184,7 @@ Window::Window(std::unique_ptr<KeyListener> keyListener,
     keyListener{std::move(keyListener)}, colorManager{std::move(colorManager)}, parser{std::move(parser)}{
     initscr();
     noecho();
+    keypad(stdscr, true);
     getmaxyx(stdscr, maxY, maxX);
     cursor = std::make_unique<Cursor>(0, 0, this);
 }
