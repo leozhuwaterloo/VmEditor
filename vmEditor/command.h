@@ -71,4 +71,22 @@ public:
     virtual void execute(Window *w) const override;
 };
 
+class Command0: public Command {
+public:
+    Command0();
+    virtual void execute(Window *w) const override;
+};
+
+class CommandDollar: public Command {
+public:
+    CommandDollar();
+    virtual void execute(Window *w) const override;
+};
+
+class CommandCaret: public Command {
+public:
+    CommandCaret();
+    virtual void execute(Window *w) const override;
+};
+
 #endif

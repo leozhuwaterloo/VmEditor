@@ -22,6 +22,9 @@ void initCommands(KeyListener *keyListener){
     keyListener->addCommand(std::make_unique<CommandResize>());
     keyListener->addCommand(std::make_unique<CommandW>());
     keyListener->addCommand(std::make_unique<CommandB>());
+    keyListener->addCommand(std::make_unique<Command0>());
+    keyListener->addCommand(std::make_unique<CommandDollar>());
+    keyListener->addCommand(std::make_unique<CommandCaret>());
 }
 
 void initColors(ColorManager *colorManager){

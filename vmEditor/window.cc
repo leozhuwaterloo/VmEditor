@@ -9,6 +9,7 @@
 #include "store.h"
 #include "utils.h"
 #include <stdlib.h>
+#include <locale>
 
 Window::Cursor::Cursor(int y, int x, Window *window):y{y}, x{x}, xLoss{0}, preX{x}, window{window}{}
 void Window::Cursor::init(Store *store){
@@ -141,6 +142,12 @@ void Window::Cursor::moveOne(const int &n) {
           while (!isAtLineEnd()) moveX(1);
         }
     }
+}
+void Window::Cursor::moveLineBegin() { while (!isAtLineBegin()) moveX(-1); }
+void Window::Cursor::moveLineEnd() { while (!isAtLineEnd()) moveX(1); }
+void Window::Cursor::moveFirstNonWs() {
+    moveLineBegin();
+    while (!isAtLineEnd() && std::isspace(currChar())) moveX(1);
 }
 const int Window::Cursor::getY() const{ return y; }
 const int Window::Cursor::getX() const{ return x; }

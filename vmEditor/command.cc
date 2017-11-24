@@ -12,6 +12,9 @@ CommandLeft::CommandLeft():Command{68}{}
 CommandResize::CommandResize():Command{410}{}
 CommandW::CommandW():Command{119}{}
 CommandB::CommandB():Command{98}{}
+Command0::Command0():Command{48}{}
+CommandDollar::CommandDollar():Command{36}{}
+CommandCaret::CommandCaret():Command{94}{}
 
 const std::vector<int>& Command::getKeys() const{
     return keys;
@@ -84,3 +87,6 @@ void CommandB::execute(Window *w) const{
         w->getCursor()->moveOne(-1);
     }
 }
+void Command0::execute(Window *w) const{ w->getCursor()->moveLineBegin(); }
+void CommandDollar::execute(Window *w) const{ w->getCursor()->moveLineEnd(); }
+void CommandCaret::execute(Window *w) const{ w->getCursor()->moveFirstNonWs(); }
