@@ -39,7 +39,7 @@ void CommandW::execute(Window *w) const{
         } while (!std::isalnum(w->getCursor()->currChar()));
     }
 
-    while (std::isblank(w->getCursor()->currChar())) {
+    while (std::isspace(w->getCursor()->currChar())) {
         w->getCursor()->moveOne(1);
     }
 }
@@ -54,7 +54,7 @@ void CommandB::execute(Window *w) const{
         } while (!std::isalnum(w->getCursor()->currChar()));
     }
 
-    while (std::isblank(w->getCursor()->currChar())) {
+    while (std::isspace(w->getCursor()->currChar())) {
         w->getCursor()->moveOne(-1);
     }
 }
