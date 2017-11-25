@@ -22,17 +22,24 @@ void Window::Cursor::adjust(){
     xLoss = 0;
     std::list<std::string>::const_iterator outerIt = window->getStore()->getItCurrY();
 
+    // so that it is guaranteed to find it
     while (outerIt != itLst) {
         newY += outerIt->length() / window->getMaxX() + 1;
-        if (newY >= window->getMaxY() - 1 - window->getStore()->getNumInvalid()) break;
         ++outerIt;
     }
 
-    while (outerIt != itLst) {
-      window->getStore()->moveY(1);
-      newY = window->getMaxY() - 2 - window->getStore()->getNumInvalid();
-      ++outerIt;
+    // readjust cursor's position if it is out of bound
+    int firstLineLength;
+    int currLineLength = outerIt->length() / window->getMaxX() + 1;
+    bool storeMoved = false;
+    while (newY + currLineLength > window->getMaxY() - 1 - window->getStore()->getNumInvalid()) {
+        firstLineLength = window->getStore()->getItCurrY()->length() / window->getMaxX() + 1;
+        window->getStore()->moveY(1);
+        storeMoved = true;
+        newY-=firstLineLength;
+        window->showStatus(std::to_string(newY));
     }
+    if(storeMoved) window->render();
 
     std::string::const_iterator innerIt= outerIt->begin();
     while (innerIt != itStr) {

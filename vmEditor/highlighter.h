@@ -2,7 +2,6 @@
 #define HIGHLIGHTER_H
 #include <regex>
 #include <string>
-#include <map>
 
 class Highlighter{
 private:
