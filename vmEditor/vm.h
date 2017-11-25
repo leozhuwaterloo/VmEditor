@@ -45,8 +45,8 @@ void initHighlighter(ColorManager *colorManager){
 
     highlighterGroup->addHighlighter(std::make_unique<Highlighter>(std::regex("(#include)\\s+?"), COLOR_MAGENTA));
     highlighterGroup->addHighlighter(std::make_unique<Highlighter>(std::regex("(#ifdef|#ifndef|#if|#define|#undef|#endif)"), COLOR_MAGENTA));
-    highlighterGroup->addHighlighter(std::make_unique<Highlighter>(std::regex("(#ifdef|#ifndef|#if|#define|#undef|#endif)\\s+?(.*?)[\\s$]"), COLOR_MAGENTA));
-    highlighterGroup->addHighlighter(std::make_unique<Highlighter>(std::regex("#include\\s+?(<.*?>)"), COLOR_RED));
+    highlighterGroup->addHighlighter(std::make_unique<Highlighter>(std::regex("(#ifdef|#ifndef|#if|#define|#undef|#endif)\\s+(\\S*?)[\\s$]"), COLOR_MAGENTA));
+    highlighterGroup->addHighlighter(std::make_unique<Highlighter>(std::regex("#include\\s+(<.*?>)"), COLOR_RED));
     highlighterGroup->addHighlighter(std::make_unique<Highlighter>(std::regex("(\".*?\"|true|false)"), COLOR_RED));
     highlighterGroup->addHighlighter(std::make_unique<Highlighter>(std::regex("\\W(\\d+?)\\W"), COLOR_RED));
     highlighterGroup->addHighlighter(std::make_unique<Highlighter>(std::regex("(this|return|private|public|protected|default)"), COLOR_YELLOW));

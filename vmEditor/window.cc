@@ -70,7 +70,7 @@ void Window::Cursor::moveY(const int &y){
             if (y < 0){
                 --itLst;
                 yDiff -= itLst->length() / window->getMaxX() + 1 + xLoss;
-             }else if (y > 0){
+            }else if (y > 0){
                 yDiff += itLst->length() / window->getMaxX() + 1 - xLoss;
                 ++itLst;
             }
@@ -138,21 +138,21 @@ void Window::Cursor::moveOne(const int &n) {
         moveX(1);
         if (x == oldX) {
             moveY(1);
-            while (!isAtLineBegin()) moveX(-1);
+            moveLineBegin();
         }
     } else if (n < 0) {
         if (isAtBegin()) return;
         int oldX = x;
         moveX(-1);
         if (x == oldX) {
-          moveY(-1);
-          while (!isAtLineEnd()) moveX(1);
+            moveY(-1);
+            moveLineEnd();
         }
     }
 }
 void Window::Cursor::moveLineBegin() { while (!isAtLineBegin()) moveX(-1); }
 void Window::Cursor::moveLineEnd() { while (!isAtLineEnd()) moveX(1); }
-void Window::Cursor::moveFirstNonWs() {
+void Window::Cursor::moveLineBeginNonWs() {
     moveLineBegin();
     while (!isAtLineEnd() && std::isspace(currChar())) moveX(1);
 }
@@ -179,67 +179,67 @@ void Window::Cursor::moveOnePastEnd() {
 const int Window::Cursor::getY() const{ return y; }
 const int Window::Cursor::getX() const{ return x; }
 const int Window::Cursor::currChar() const{ return *itStr; }
-bool Window::Cursor::isEmptyLine() const { return itLst->length() == 0; }
+bool Window::Cursor::isAtEmptyLine() const { return itLst->length() == 0; }
 bool Window::Cursor::isAtBegin() const { return itStr == window->getStore()->getStrs().begin()->begin(); }
-bool Window::Cursor::isAtEnd() const { return itStr == window->getStore()->getStrs().end()->end()-1; }
+bool Window::Cursor::isAtEnd() const { return itStr + 1 == std::next(window->getStore()->getStrs().end(), -1)->end(); }
 bool Window::Cursor::isAtLineBegin() const { return itStr == itLst->begin(); }
-bool Window::Cursor::isAtLineEnd() const { return itLst->length() == 0 || itStr == itLst->end() - 1; }
+bool Window::Cursor::isAtLineEnd() const { return itLst->length() == 0 || itStr + 1 == itLst->end(); }
 
 
 Window::Window(std::unique_ptr<KeyListener> keyListener,
     std::unique_ptr<ColorManager> colorManager, std::unique_ptr<Parser> parser):
     keyListener{std::move(keyListener)}, colorManager{std::move(colorManager)}, parser{std::move(parser)}{
-    initscr();
-    noecho();
-    keypad(stdscr, true);
-    getmaxyx(stdscr, maxY, maxX);
-    cursor = std::make_unique<Cursor>(0, 0, this);
-}
-
-Window::~Window(){
-    endwin();
-}
-
-void Window::init(const std::string &fileName){
-    store = std::move(parser->parse(fileName));
-    cursor->init(store.get());
-    colorManager->init(parser->getFileName());
-    render();
-    keyListener->init(this);
-}
-
-void Window::render(){
-    for(int i = 1; i < maxY - 1; ++i){
-        colorManager->mvprintColor(i, 0, "~", COLOR_BLUE);
+        initscr();
+        noecho();
+        keypad(stdscr, true);
+        getmaxyx(stdscr, maxY, maxX);
+        cursor = std::make_unique<Cursor>(0, 0, this);
     }
-    colorManager->mvprint(0, 0, store->getRenderString(maxY, maxX));
-    for(int i = 0; i < store->getNumInvalid(); ++i){
-        colorManager->printColor("@\n", COLOR_BLUE);
+
+    Window::~Window(){
+        endwin();
     }
-    refreshCursor();
-    refresh();
-}
 
-void Window::resize(){
-    getmaxyx(stdscr, maxY, maxX);
-    cursor->adjust();
-    render();
-}
+    void Window::init(const std::string &fileName){
+        store = std::move(parser->parse(fileName));
+        cursor->init(store.get());
+        colorManager->init(parser->getFileName());
+        render();
+        keyListener->init(this);
+    }
 
-void Window::refreshCursor(){
-    move(cursor->getY(), cursor->getX());
-}
+    void Window::render(){
+        for(int i = 1; i < maxY - 1; ++i){
+            colorManager->mvprintColor(i, 0, "~", COLOR_BLUE);
+        }
+        colorManager->mvprint(0, 0, store->getRenderString(maxY, maxX));
+        for(int i = 0; i < store->getNumInvalid(); ++i){
+            colorManager->printColor("@\n", COLOR_BLUE);
+        }
+        refreshCursor();
+        refresh();
+    }
 
-void Window::showStatus(const std::string &status){
-    colorManager->mvprint(maxY-1, 0, status + "\n");
-    refreshCursor();
-    refresh();
-}
+    void Window::resize(){
+        getmaxyx(stdscr, maxY, maxX);
+        cursor->adjust();
+        render();
+    }
+
+    void Window::refreshCursor(){
+        move(cursor->getY(), cursor->getX());
+    }
+
+    void Window::showStatus(const std::string &status){
+        colorManager->mvprint(maxY-1, 0, status + "\n");
+        refreshCursor();
+        refresh();
+    }
 
 
-const int Window::getMaxY() const{ return maxY; }
-const int Window::getMaxX() const{ return maxX; }
-Window::Cursor* Window::getCursor() { return cursor.get(); }
-Store* Window::getStore() { return store.get(); }
-KeyListener* Window::getKeyListener(){ return keyListener.get(); }
-ColorManager* Window::getColorManager(){ return colorManager.get(); }
+    const int Window::getMaxY() const{ return maxY; }
+    const int Window::getMaxX() const{ return maxX; }
+    Window::Cursor* Window::getCursor() { return cursor.get(); }
+    Store* Window::getStore() { return store.get(); }
+    KeyListener* Window::getKeyListener(){ return keyListener.get(); }
+    ColorManager* Window::getColorManager(){ return colorManager.get(); }

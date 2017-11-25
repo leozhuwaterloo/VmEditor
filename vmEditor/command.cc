@@ -3,6 +3,10 @@
 #include <locale>
 #include <ncurses.h>
 
+/*
+https://www.fprintf.net/vimCheatSheet.html
+*/
+
 Command::Command(std::initializer_list<int> keys):keys{keys}{}
 UndoableCommand::UndoableCommand(std::initializer_list<int> keys):Command{keys}{}
 CommandInsert::CommandInsert():Command{105}{}
@@ -50,62 +54,40 @@ void CommandLeft::execute(Window *w) const{ w->getCursor()->moveX(-1); }
 
 void CommandResize::execute(Window *w) const{ w->resize(); }
 
-void CommandW::execute(Window *w) const{
-    if (w->getCursor()->isEmptyLine()) {
+void CommandW::execute(Window *w) const{ // words forward
+    if (w->getCursor()->isAtEnd()) return;
+    if (w->getCursor()->isAtEmptyLine() || w->getCursor()->isAtLineEnd()){
         w->getCursor()->moveOne(1);
-        return;
-    }
-    if (std::isalnum(w->getCursor()->currChar())) {
+    }else{
+        int isAlnum = std::isalnum(w->getCursor()->currChar());
         do {
+            if(std::isspace(w->getCursor()->currChar())) break;
             w->getCursor()->moveOne(1);
-            if(w->getCursor()->isAtLineEnd()) {
-                w->getCursor()->moveOne(1);
-                break;
-            }
-        } while (!w->getCursor()->isAtEnd() && std::isalnum(w->getCursor()->currChar()));
-    } else {
-        do {
-            w->getCursor()->moveOne(1);
-            if (w->getCursor()->isEmptyLine()) return;
-            if(w->getCursor()->isAtLineEnd()) {
-                w->getCursor()->moveOne(1);
-                break;
-            }
-        } while (!w->getCursor()->isAtEnd() && !std::isalnum(w->getCursor()->currChar()));
+        } while (!w->getCursor()->isAtEnd() && std::isalnum(w->getCursor()->currChar()) == isAlnum);
     }
-
+    // move on if currChar is whitespace
     while (!w->getCursor()->isAtEnd() && std::isspace(w->getCursor()->currChar())) {
         w->getCursor()->moveOne(1);
     }
 }
-void CommandB::execute(Window *w) const{
-    if (w->getCursor()->isEmptyLine()) {
-        w->getCursor()->moveOne(-1);
-        return;
-    }
-    if (std::isalnum(w->getCursor()->currChar())) {
-        do {
-            w->getCursor()->moveOne(-1);
-            if(w->getCursor()->isAtLineBegin()) {
-                w->getCursor()->moveOne(-1);
-                break;
-            }
-        } while (!w->getCursor()->isAtBegin() && std::isalnum(w->getCursor()->currChar()));
-    } else {
-        do {
-            w->getCursor()->moveOne(-1);
-            if (w->getCursor()->isEmptyLine()) return;
-            if(w->getCursor()->isAtLineBegin()) {
-                w->getCursor()->moveOne(-1);
-                break;
-            }
-        } while (!w->getCursor()->isAtBegin() && !std::isalnum(w->getCursor()->currChar()));
-    }
+
+void CommandB::execute(Window *w) const{ // words backward
+    if (w->getCursor()->isAtBegin()) return;
+    w->getCursor()->moveOne(-1);
+    if (w->getCursor()->isAtLineBegin()) return;
 
     while (!w->getCursor()->isAtBegin() && std::isspace(w->getCursor()->currChar())) {
         w->getCursor()->moveOne(-1);
     }
+
+    int isAlnum = std::isalnum(w->getCursor()->currChar());
+    do {
+        w->getCursor()->moveOne(-1);
+        if(std::isspace(w->getCursor()->currChar())) break;
+    } while (!w->getCursor()->isAtBegin() && std::isalnum(w->getCursor()->currChar()) == isAlnum);
+    w->getCursor()->moveOne(1);
 }
-void Command0::execute(Window *w) const{ w->getCursor()->moveLineBegin(); }
-void CommandDollar::execute(Window *w) const{ w->getCursor()->moveLineEnd(); }
-void CommandCaret::execute(Window *w) const{ w->getCursor()->moveFirstNonWs(); }
+
+void Command0::execute(Window *w) const{ w->getCursor()->moveLineBegin(); } // To the first character of the line
+void CommandDollar::execute(Window *w) const{ w->getCursor()->moveLineEnd(); } // To the end of the line
+void CommandCaret::execute(Window *w) const{ w->getCursor()->moveLineBeginNonWs(); }  // To the first non-blank character of the line

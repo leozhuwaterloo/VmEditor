@@ -30,13 +30,13 @@ class Window{
         void moveOne(const int &n);
         void moveLineBegin();
         void moveLineEnd();
-        void moveFirstNonWs();
+        void moveLineBeginNonWs();
         void insert(char c);
         void moveOnePastEnd();
         const int getY() const;
         const int getX() const;
         const int currChar() const;
-        bool isEmptyLine() const;
+        bool isAtEmptyLine() const;
         bool isAtBegin() const;
         bool isAtEnd() const;
         bool isAtLineBegin() const;
