@@ -18,7 +18,9 @@ public:
     void addColor(const int &fontColor, const int &bgColor);
     void addHighlighterGroup(std::unique_ptr<HighlighterGroup> highlighterGroup);
     void init(const std::string &fileName);
+    void print(const std::string &str, const bool &highlight);
     void print(const std::string &str);
+    void mvprint(const int &y, const int &x, const std::string &str, const bool &highlight);
     void mvprint(const int &y, const int &x, const std::string &str);
     void printColor(const std::string &str, const int &fontColor, const int &bgColor);
     void printColor(const std::string &str, const int &fontColor);

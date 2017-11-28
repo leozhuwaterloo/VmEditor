@@ -14,14 +14,14 @@ void initHighlighter(ColorManager *colorManagerr);
 
 
 void initCommands(KeyListener *keyListener){
-    keyListener->addCommand(std::make_unique<CommandInsert>());
+    keyListener->addCommand(std::make_unique<Commandi>());
     keyListener->addCommand(std::make_unique<CommandUp>());
     keyListener->addCommand(std::make_unique<CommandDown>());
     keyListener->addCommand(std::make_unique<CommandLeft>());
     keyListener->addCommand(std::make_unique<CommandRight>());
     keyListener->addCommand(std::make_unique<CommandResize>());
-    keyListener->addCommand(std::make_unique<CommandW>());
-    keyListener->addCommand(std::make_unique<CommandB>());
+    keyListener->addCommand(std::make_unique<Commandw>());
+    keyListener->addCommand(std::make_unique<Commandb>());
     keyListener->addCommand(std::make_unique<Command0>());
     keyListener->addCommand(std::make_unique<CommandDollar>());
     keyListener->addCommand(std::make_unique<CommandCaret>());
@@ -34,6 +34,7 @@ void initColors(ColorManager *colorManager){
     colorManager->addColor(COLOR_MAGENTA, COLOR_BLACK);
     colorManager->addColor(COLOR_GREEN, COLOR_BLACK);
     colorManager->addColor(COLOR_YELLOW, COLOR_BLACK);
+    colorManager->addColor(COLOR_WHITE, COLOR_BLACK);
     initHighlighter(colorManager);
 }
 

@@ -9,11 +9,13 @@ class ColorManager;
 class Parser;
 class Store;
 
+enum State { STATE_INSERT, STATE_NORMAL };
+
 class Window{
     class Cursor{
     private:
-        int y;
-        int x;
+        int y, x;
+        int nLine, nChar;
         int xLoss;
         int preX;
         Window *window;
@@ -32,9 +34,11 @@ class Window{
         void moveLineEnd();
         void moveLineBeginNonWs();
         void insert(char c);
-        void moveOnePastEnd();
+        void erase();
         const int getY() const;
         const int getX() const;
+        const int getNLine() const;
+        const int getNChar() const;
         const int currChar() const;
         bool isAtEmptyLine() const;
         bool isAtBegin() const;
@@ -50,6 +54,8 @@ private:
     std::unique_ptr<ColorManager> colorManager;
     std::unique_ptr<Parser> parser;
     std::unique_ptr<Store> store;
+    std::string status;
+    State state;
 public:
     Window(std::unique_ptr<KeyListener> keyListener,
         std::unique_ptr<ColorManager> colorManager, std::unique_ptr<Parser> parser);
@@ -59,10 +65,13 @@ public:
     void render();
     void resize();
     void refreshCursor();
+    void showStatus();
     void showStatus(const std::string &status);
 
     const int getMaxY() const;
     const int getMaxX() const;
+    const int getStateLineEnd() const;
+    void setState(State state);
     Cursor* getCursor();
     Store* getStore();
     KeyListener* getKeyListener();

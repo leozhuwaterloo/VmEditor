@@ -23,9 +23,9 @@ public:
     virtual void reverse_execute(Window *w) const = 0;
 };
 
-class CommandInsert: public Command{
+class Commandi: public Command{
 public:
-    CommandInsert();
+    Commandi();
     virtual void execute(Window *w) const override;
 };
 
@@ -59,15 +59,15 @@ public:
     virtual void execute(Window *w) const override;
 };
 
-class CommandW: public Command {
+class Commandw: public Command {
 public:
-    CommandW();
+    Commandw();
     virtual void execute(Window *w) const override;
 };
 
-class CommandB: public Command {
+class Commandb: public Command {
 public:
-    CommandB();
+    Commandb();
     virtual void execute(Window *w) const override;
 };
 

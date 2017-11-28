@@ -9,11 +9,15 @@ class Parser{
 private:
     std::string fileName;
     virtual std::unique_ptr<Store> runParse(const std::string &fileName) = 0;
+protected:
+    int lCount, cCount;
 public:
     Parser() = default;
     virtual ~Parser() = default;
     std::unique_ptr<Store> parse(const std::string &fileName);
     std::string getFileName() const;
+    int getlCount() const;
+    int getcCount() const;
 };
 
 class DefaultParser: public Parser{
