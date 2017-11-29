@@ -16,6 +16,7 @@ A F I J N O P R S X . ; / ? % @
 Command::Command(std::initializer_list<int> keys):keys{keys}{}
 UndoableCommand::UndoableCommand(std::initializer_list<int> keys):Command{keys}{}
 Commandi::Commandi():Command{105}{}
+Commanda::Commanda():Command{97}{}
 CommandUp::CommandUp():Command{259}{}
 CommandDown::CommandDown():Command{258}{}
 CommandRight::CommandRight():Command{261}{}
@@ -31,9 +32,10 @@ const std::vector<int>& Command::getKeys() const{
     return keys;
 }
 
-void Commandi::execute(Window *w) const{
+void enterInsertMode(Window *w, const int &initShift){
     w->showStatus("-- INSERT -- ");
     w->setState(STATE_INSERT);
+    w->getCursor()->moveX(initShift);
     int ch;
     while (ch = getch()) {
         if (ch == 27) break;  // escape
@@ -41,6 +43,7 @@ void Commandi::execute(Window *w) const{
         else if (ch == 258) w->getCursor()->moveY(1);
         else if (ch == 260) w->getCursor()->moveX(-1);
         else if (ch == 261) w->getCursor()->moveX(1);
+        else if (ch == 410) w->resize();
         else if (ch == 8 || ch == 263) {    // backspace
             w->getCursor()->erase();
             w->render();
@@ -49,10 +52,14 @@ void Commandi::execute(Window *w) const{
             w->render();
         }
     }
+    w->setState(STATE_NORMAL);
     w->getCursor()->moveX(-1);
     w->showStatus("");
-    w->setState(STATE_NORMAL);
 }
+
+
+void Commandi::execute(Window *w) const{ enterInsertMode(w, 0); }
+void Commanda::execute(Window *w) const{ enterInsertMode(w, 1); }
 
 void CommandUp::execute(Window *w) const{ w->getCursor()->moveY(-1); }
 void CommandDown::execute(Window *w) const{ w->getCursor()->moveY(1); }

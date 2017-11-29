@@ -117,7 +117,7 @@ void Window::Cursor::moveY(const int &y){
 void Window::Cursor::moveX(const int &x){
     int xBound = itLst->length()-1+window->getStateLineEnd();
     int nextX = clampReturn(preX, 0, xBound) + x;
-    if(window->getStateLineEnd() == 1 && preX > xBound){
+    if(window->getStateLineEnd() == 1 && preX > xBound && x < 0){
         nextX = itLst->length() - 1;
     }
     if(clampReturn(nextX, 0, xBound) == nextX){
@@ -166,12 +166,34 @@ void Window::Cursor::moveLineBeginNonWs() {
     while (!isAtLineEnd() && std::isspace(currChar())) moveX(1);
 }
 void Window::Cursor::insert(char c) {
-    itStr = itLst->insert(itStr, c);
-    moveX(1);
+    if (c == 10){ //enter
+        std::string first_half = std::string(itLst->begin(), itStr);
+        std::string second_half = std::string(itStr, itLst->end());
+        (*itLst) = first_half;
+        ++itLst;
+        itLst = window->getStore()->getStrs().insert(itLst, second_half);
+        itStr = itLst->begin();
+        adjust(); //too tired to writing another logic just call adjust
+    }else{
+        itStr = itLst->insert(itStr, c);
+        moveX(1);
+    }
 }
 void Window::Cursor::erase() {
-    moveX(-1);
-    itStr = itLst->erase(itStr);
+    if(isAtLineBegin()){
+        if(!isAtBegin()){
+            std::string currLineContent = *itLst;
+            itLst = window->getStore()->getStrs().erase(itLst);
+            --itLst;
+            int length = itLst->length();
+            (*itLst) += currLineContent;
+            itStr = itLst->begin() + length;
+            adjust();
+        }
+    }else{
+        moveX(-1);
+        itStr = itLst->erase(itStr);
+    }
 }
 const int Window::Cursor::getY() const{ return y; }
 const int Window::Cursor::getX() const{ return x; }
@@ -191,6 +213,7 @@ Window::Window(std::unique_ptr<KeyListener> keyListener,
     initscr();
     noecho();
     keypad(stdscr, true);
+    set_escdelay(0);
     getmaxyx(stdscr, maxY, maxX);
     cursor = std::make_unique<Cursor>(0, 0, this);
 }

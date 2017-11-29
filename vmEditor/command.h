@@ -29,6 +29,12 @@ public:
     virtual void execute(Window *w) const override;
 };
 
+class Commanda: public Command{
+public:
+    Commanda();
+    virtual void execute(Window *w) const override;
+};
+
 class CommandUp: public Command{
 public:
     CommandUp();
