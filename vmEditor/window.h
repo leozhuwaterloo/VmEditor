@@ -37,6 +37,8 @@ class Window{
         void erase();
         const int getY() const;
         const int getX() const;
+        std::list<std::string>::iterator &getItLst();
+        std::string::iterator &getItStr();
         const int getNLine() const;
         const int getNChar() const;
         const int currChar() const;

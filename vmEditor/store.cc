@@ -2,6 +2,7 @@
 
 Store::Store(std::list<std::string> strs):strs{strs}{ itCurrY = getStrs().cbegin(); }
 
+
 std::string Store::getRenderString(const int &maxY, const int &maxX){
     std::string res;
     int i = 0;
@@ -25,6 +26,6 @@ void Store::moveY(const int &y){
 }
 
 std::list<std::string>& Store::getStrs() { return strs; }
-const std::list<std::string>::const_iterator& Store::getItCurrY() const{ return itCurrY; }
+std::list<std::string>::const_iterator& Store::getItCurrY() { return itCurrY; }
 int Store::getCurrY() const{ return currY; }
 int Store::getNumInvalid() const { return numInvalid; }

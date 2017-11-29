@@ -5,6 +5,7 @@
 #include "highlightergroup.h"
 #include "highlighter.h"
 #include "command.h"
+#include "event.h"
 #include "parser.h"
 #include "store.h"
 #include "utils.h"
@@ -197,6 +198,8 @@ void Window::Cursor::erase() {
 }
 const int Window::Cursor::getY() const{ return y; }
 const int Window::Cursor::getX() const{ return x; }
+std::list<std::string>::iterator &Window::Cursor::getItLst() { return itLst; }
+std::string::iterator &Window::Cursor::getItStr() { return itStr; }
 const int Window::Cursor::getNLine() const{ return nLine; }
 const int Window::Cursor::getNChar() const{ return nChar; }
 const int Window::Cursor::currChar() const{ return *itStr; }

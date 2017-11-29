@@ -1,6 +1,7 @@
 #include "window.h"
 #include "keylistener.h"
 #include "command.h"
+#include "event.h"
 #include "colormanager.h"
 #include "highlightergroup.h"
 #include "highlighter.h"
@@ -26,6 +27,7 @@ void initCommands(KeyListener *keyListener){
     keyListener->addCommand(std::make_unique<Command0>());
     keyListener->addCommand(std::make_unique<CommandDollar>());
     keyListener->addCommand(std::make_unique<CommandCaret>());
+    keyListener->addCommand(std::make_unique<Commandu>());
 }
 
 void initColors(ColorManager *colorManager){

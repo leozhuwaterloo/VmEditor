@@ -2,20 +2,24 @@
 #define KEYLISTENER_H
 #include <map>
 #include <vector>
+#include <stack>
 #include <memory>
 
 class Command;
 class Window;
+class Event;
 
 class KeyListener{
 private:
     std::map<std::vector<int>, std::unique_ptr<Command>> commands;
     std::vector<int> currKeys;
+    std::stack<std::unique_ptr<Event>> eventHistory;
 public:
     KeyListener() = default;
     ~KeyListener() = default;
     void init(Window *window);
     void addCommand(std::unique_ptr<Command> command);
+    std::stack<std::unique_ptr<Event>> &getEventHistory();
 };
 
 #endif
