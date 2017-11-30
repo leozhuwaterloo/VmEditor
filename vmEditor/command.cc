@@ -14,7 +14,7 @@ https://www.fprintf.net/vimCheatSheet.html
 
 /*
 cc c[any motion] dd d[any motion] n o p q s yy y[any motion]
-A I J N O P S . ; / ? % @
+J N O P S . ; / ? % @
 ^b ^d ^f ^g ^u
 */
 
@@ -143,6 +143,7 @@ Commandx::Commandx():UndoableCommand{120}{}
 CommandX::CommandX():UndoableCommand{88}{}
 Commandr::Commandr():UndoableCommand{114}{}
 CommandR::CommandR():UndoableCommand{82}{}
+CommandJ::CommandJ():UndoableCommand{74}{}
 
 std::vector<std::unique_ptr<Event>> enterInsertMode(const UndoableCommand *command, Window *w, const int &initShift, const bool &replace){
     std::vector<std::unique_ptr<Event>> events;
@@ -300,3 +301,31 @@ std::vector<std::unique_ptr<Event>> Commandr::runEvent(Window *w) const{
 void Commandr::reverseExecute(Window *w, Event *e) const{ restoreStore(w, dynamic_cast<StoreChangeEvent*>(e)); }
 std::vector<std::unique_ptr<Event>> CommandR::runEvent(Window *w) const{ return enterInsertMode(this, w, 0, true); }
 void CommandR::reverseExecute(Window *w, Event *e) const{ restoreStore(w, dynamic_cast<StoreChangeEvent*>(e)); }
+
+
+std::vector<std::unique_ptr<Event>> CommandJ::runEvent(Window *w) const{
+    std::vector<std::unique_ptr<Event>> events;
+    std::unique_ptr<Store> preStore = std::make_unique<Store>(*(w->getStore()));
+    int cursorY = std::distance(w->getStore()->getStrs().begin(), w->getCursor()->getItLst());
+    int cursorX = std::distance((w->getCursor()->getItLst())->begin(), w->getCursor()->getItStr());
+
+    std::list<std::string>::iterator &itLst = w->getCursor()->getItLst();
+    std::string::iterator &itStr = w->getCursor()->getItStr();
+    ++itLst;
+    if(itLst != w->getStore()->getStrs().end()){
+        std::string currLineContent = *itLst;
+        itLst = w->getStore()->getStrs().erase(itLst);
+        --itLst;
+        int length = itLst->length();
+        if(*(itLst->end()-1) != ' ') (*itLst) += " ";
+        (*itLst) += trim(currLineContent);
+        itStr = itLst->begin() + length;
+        w->getCursor()->adjust();
+        w->render();
+        events.push_back(std::make_unique<StoreChangeEvent>(this, std::move(preStore), cursorY, cursorX));
+    } else{
+        --itLst;
+    }
+    return events;
+}
+void CommandJ::reverseExecute(Window *w, Event *e) const{ restoreStore(w, dynamic_cast<StoreChangeEvent*>(e)); }
