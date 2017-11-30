@@ -10,8 +10,8 @@ void KeyListener::init(Window *window) {
     while(c = getch()){
         currKeys.push_back(c);
         if(commands.find(currKeys) != commands.end()){
-            std::unique_ptr<Event> e = commands[currKeys]->execute(window);
-            if (e != nullptr){
+            std::vector<std::unique_ptr<Event>> events = commands[currKeys]->execute(window);
+            for(auto &e: events){
                 eventHistory.push(std::move(e));
             }
         }else{

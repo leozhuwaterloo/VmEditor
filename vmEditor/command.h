@@ -16,16 +16,16 @@ public:
     Command(std::initializer_list<int> keys);
     virtual ~Command() = default;
     const std::vector<int>& getKeys() const;
-    virtual std::unique_ptr<Event> execute(Window *w) const;
+    virtual std::vector<std::unique_ptr<Event>> execute(Window *w) const;
     virtual void run(Window *w) const = 0;
 };
 
 class UndoableCommand: public Command{
 public:
     UndoableCommand(std::initializer_list<int> keys);
-    virtual std::unique_ptr<Event> execute(Window *w) const override;
+    virtual std::vector<std::unique_ptr<Event>> execute(Window *w) const override;
     virtual void run(Window *w) const override;
-    virtual std::unique_ptr<Event> runEvent(Window *w) const = 0;
+    virtual std::vector<std::unique_ptr<Event>> runEvent(Window *w) const = 0;
     virtual void reverseExecute(Window *w, Event *e) const = 0;
 };
 
@@ -110,30 +110,42 @@ public:
 class Commandi: public UndoableCommand{
 public:
     Commandi();
-    virtual std::unique_ptr<Event> runEvent(Window *w) const override;
+    virtual std::vector<std::unique_ptr<Event>> runEvent(Window *w) const override;
     virtual void reverseExecute(Window *w, Event *e) const override;
 };
 
 class Commanda: public UndoableCommand{
 public:
     Commanda();
-    virtual std::unique_ptr<Event> runEvent(Window *w) const override;
+    virtual std::vector<std::unique_ptr<Event>> runEvent(Window *w) const override;
     virtual void reverseExecute(Window *w, Event *e) const override;
 };
 
 class Commandx: public UndoableCommand {
 public:
     Commandx();
-    virtual std::unique_ptr<Event> runEvent(Window *w) const override;
+    virtual std::vector<std::unique_ptr<Event>> runEvent(Window *w) const override;
     virtual void reverseExecute(Window *w, Event *e) const override;
 };
 
 class CommandX: public UndoableCommand {
 public:
     CommandX();
-    virtual std::unique_ptr<Event> runEvent(Window *w) const override;
+    virtual std::vector<std::unique_ptr<Event>> runEvent(Window *w) const override;
+    virtual void reverseExecute(Window *w, Event *e) const override;
+};
+class Commandr: public UndoableCommand {
+public:
+    Commandr();
+    virtual std::vector<std::unique_ptr<Event>> runEvent(Window *w) const override;
     virtual void reverseExecute(Window *w, Event *e) const override;
 };
 
+class CommandR: public UndoableCommand {
+public:
+    CommandR();
+    virtual std::vector<std::unique_ptr<Event>> runEvent(Window *w) const override;
+    virtual void reverseExecute(Window *w, Event *e) const override;
+};
 
 #endif

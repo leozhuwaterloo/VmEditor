@@ -118,8 +118,8 @@ void Window::Cursor::moveY(const int &y){
 void Window::Cursor::moveX(const int &x){
     int xBound = itLst->length()-1+window->getStateLineEnd();
     int nextX = clampReturn(preX, 0, xBound) + x;
-    if(window->getStateLineEnd() == 1 && preX > xBound && x < 0){
-        nextX = itLst->length() - 1;
+    if(window->getStateLineEnd() == 1 && preX >= xBound && currChar()){
+        nextX = 0;
     }
     if(clampReturn(nextX, 0, xBound) == nextX){
         while((this->x + x) >= window->getMaxX()){
