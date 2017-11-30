@@ -44,6 +44,8 @@ Command0::Command0():Command{48}{}
 CommandDollar::CommandDollar():Command{36}{}
 CommandCaret::CommandCaret():Command{94}{}
 Commandu::Commandu():Command{117}{}
+Commandf::Commandf():Command{102}{}
+CommandF::CommandF():Command{70}{}
 
 void CommandUp::run(Window *w) const{ w->getCursor()->moveY(-1); }
 void CommandDown::run(Window *w) const{ w->getCursor()->moveY(1); }
@@ -102,6 +104,24 @@ void Commandu::run(Window *w) const{  // undo
         topEvent.reset();
     }
 }
+
+void find(Window *w, const int &direction, const char &target){
+    std::string::iterator initIt = w->getCursor()->getItStr();
+    bool found = false;
+    do{
+        w->getCursor()->moveX(direction);
+        if (w->getCursor()->currChar() == target) { found = true; break;}
+    } while(!w->getCursor()->isAtLineEnd() && !w->getCursor()->isAtLineBegin());
+
+    if(!found){
+        while(w->getCursor()->getItStr() != initIt){
+            w->getCursor()->moveX(-direction);
+        }
+    }
+}
+
+void Commandf::run(Window *w) const{ find(w, 1, getch()); } // To [count]'th occurrence of {char} to the right. The cursor is placed on {char}
+void CommandF::run(Window *w) const{ find(w, -1, getch()); } // To the [count]'th occurrence of {char} to the left. The cursor is placed on {char} (inclusive).
 
 
 Commandi::Commandi():UndoableCommand{105}{}
@@ -190,7 +210,7 @@ std::unique_ptr<StoreChangeEvent> deleteOne(const UndoableCommand *command, Wind
     }
 }
 
-std::unique_ptr<Event> Commandx::runEvent(Window *w) const{ return deleteOne(this, w, 1); }
+std::unique_ptr<Event> Commandx::runEvent(Window *w) const{ return deleteOne(this, w, 1); } // Delete characters under and after the cursor
 void Commandx::reverseExecute(Window *w, Event *e) const{ restoreStore(w, dynamic_cast<StoreChangeEvent*>(e)); }
-std::unique_ptr<Event> CommandX::runEvent(Window *w) const{ return deleteOne(this, w, 0); }
+std::unique_ptr<Event> CommandX::runEvent(Window *w) const{ return deleteOne(this, w, 0); } //Delete characters before the cursor
 void CommandX::reverseExecute(Window *w, Event *e) const{ restoreStore(w, dynamic_cast<StoreChangeEvent*>(e)); }
