@@ -46,6 +46,7 @@ class Window{
         bool isAtBegin() const;
         bool isAtEnd() const;
         bool isAtLineBegin() const;
+        bool isAtLineEnd(const int &offset) const;
         bool isAtLineEnd() const;
     };
 
@@ -76,6 +77,7 @@ public:
     void setState(State state);
     Cursor* getCursor();
     Store* getStore();
+    std::unique_ptr<Store> &getUniqueStore();
     KeyListener* getKeyListener();
     ColorManager* getColorManager();
 };

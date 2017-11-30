@@ -207,7 +207,8 @@ bool Window::Cursor::isAtEmptyLine() const { return itLst->length() == 0; }
 bool Window::Cursor::isAtBegin() const { return itStr == window->getStore()->getStrs().begin()->begin(); }
 bool Window::Cursor::isAtEnd() const { return itStr + 1 == std::next(window->getStore()->getStrs().end(), -1)->end(); }
 bool Window::Cursor::isAtLineBegin() const { return itStr == itLst->begin(); }
-bool Window::Cursor::isAtLineEnd() const { return itLst->length() == 0 || itStr + 1 == itLst->end(); }
+bool Window::Cursor::isAtLineEnd(const int &offset) const { return itLst->length() == 0 || itStr + 1 - offset == itLst->end(); }
+bool Window::Cursor::isAtLineEnd() const { return isAtLineEnd(0); }
 
 Window::Window(std::unique_ptr<KeyListener> keyListener,
     std::unique_ptr<ColorManager> colorManager, std::unique_ptr<Parser> parser):
@@ -278,5 +279,6 @@ const int Window::getStateLineEnd() const{ if (state == STATE_INSERT) return 1; 
 void Window::setState(State state){ this->state = state; }
 Window::Cursor* Window::getCursor() { return cursor.get(); }
 Store* Window::getStore() { return store.get(); }
+std::unique_ptr<Store> &Window::getUniqueStore() { return store; }
 KeyListener* Window::getKeyListener(){ return keyListener.get(); }
 ColorManager* Window::getColorManager(){ return colorManager.get(); }

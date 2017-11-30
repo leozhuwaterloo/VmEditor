@@ -28,6 +28,8 @@ void initCommands(KeyListener *keyListener){
     keyListener->addCommand(std::make_unique<CommandDollar>());
     keyListener->addCommand(std::make_unique<CommandCaret>());
     keyListener->addCommand(std::make_unique<Commandu>());
+    keyListener->addCommand(std::make_unique<Commandx>());
+    keyListener->addCommand(std::make_unique<CommandX>());
 }
 
 void initColors(ColorManager *colorManager){
@@ -53,8 +55,8 @@ void initHighlighter(ColorManager *colorManager){
     highlighterGroup->addHighlighter(std::make_unique<Highlighter>(std::regex("#include\\s+(<.*?>)"), COLOR_RED));
     highlighterGroup->addHighlighter(std::make_unique<Highlighter>(std::regex("(\".*?\"|true|false)"), COLOR_RED));
     highlighterGroup->addHighlighter(std::make_unique<Highlighter>(std::regex("\\W(\\d+?)\\W"), COLOR_RED));
-    highlighterGroup->addHighlighter(std::make_unique<Highlighter>(std::regex("(this|return|private|public|protected|default)"), COLOR_YELLOW));
-    highlighterGroup->addHighlighter(std::make_unique<Highlighter>(std::regex("(int|const|void|bool|class)"), COLOR_GREEN));
+    highlighterGroup->addHighlighter(std::make_unique<Highlighter>(std::regex("\\W(this|return|private|public|protected|default)\\W"), COLOR_YELLOW));
+    highlighterGroup->addHighlighter(std::make_unique<Highlighter>(std::regex("\\W(int|const|void|bool|class)\\W"), COLOR_GREEN));
     highlighterGroup->addHighlighter(std::make_unique<Highlighter>(std::regex("(//.*)|(/\\*[\\w\\W]*?\\*/)"), COLOR_BLUE));
     highlighterGroup->addHighlighter(std::make_unique<Highlighter>(std::regex("([^(/\\*)]*?\\*/)|(/\\*[^(\\*/)]*?)$"), COLOR_BLUE));
 

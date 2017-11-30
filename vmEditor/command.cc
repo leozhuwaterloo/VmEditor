@@ -12,8 +12,8 @@ https://www.fprintf.net/vimCheatSheet.html
 */
 
 /*
-cc c[any motion] dd d[any motion] f h j k l n o p q r s u x yy y[any motion]
-A F I J N O P R S X . ; / ? % @
+cc c[any motion] dd d[any motion] f h j k l n o p q r s yy y[any motion]
+A F I J N O P R S . ; / ? % @
 ^b ^d ^f ^g ^u
 */
 
@@ -33,8 +33,6 @@ void UndoableCommand::run(Window *w) const{}
 std::unique_ptr<Event> UndoableCommand::execute(Window *w) const{ return runEvent(w); }
 
 
-Commandi::Commandi():UndoableCommand{105}{}
-Commanda::Commanda():Command{97}{}
 CommandUp::CommandUp():Command{259}{}
 CommandDown::CommandDown():Command{258}{}
 CommandRight::CommandRight():Command{261}{}
@@ -46,59 +44,6 @@ Command0::Command0():Command{48}{}
 CommandDollar::CommandDollar():Command{36}{}
 CommandCaret::CommandCaret():Command{94}{}
 Commandu::Commandu():Command{117}{}
-
-std::vector<int> enterInsertMode(Window *w, const int &initShift){
-    w->showStatus("-- INSERT -- ");
-    w->setState(STATE_INSERT);
-    w->getCursor()->moveX(initShift);
-    int ch;
-    std::vector<int> inserted;
-    while (ch = getch()) {
-        inserted.push_back(ch);
-        if (ch == 27) break;  // escape
-        else if (ch == 259) w->getCursor()->moveY(-1);
-        else if (ch == 258) w->getCursor()->moveY(1);
-        else if (ch == 260) w->getCursor()->moveX(-1);
-        else if (ch == 261) w->getCursor()->moveX(1);
-        else if (ch == 410) w->resize();
-        else if (ch == 8 || ch == 263) {    // backspace
-            w->getCursor()->erase();
-            w->render();
-        } else {
-            w->getCursor()->insert(ch);
-            w->render();
-        }
-    }
-    w->setState(STATE_NORMAL);
-    w->getCursor()->moveX(-1);
-    w->showStatus("");
-    return inserted;
-}
-
-
-std::unique_ptr<Event> Commandi::runEvent(Window *w) const{
-    return std::make_unique<InsertEvent>(this, w->getCursor()->getItLst(), w->getCursor()->getItStr(), enterInsertMode(w, 0));
-}
-void Commandi::reverseExecute(Window *w, Event *e) const{
-    InsertEvent* insertEvent = dynamic_cast<InsertEvent*>(e);
-    if(insertEvent){
-        w->getCursor()->getItLst() = insertEvent->itLst;
-        w->getCursor()->getItStr() = insertEvent->itStr;
-
-        w->setState(STATE_INSERT);
-        w->getCursor()->moveX(1);
-        for(auto &it: insertEvent->inserted){
-
-            // maybe it should copy the entire store instead
-
-        }
-        w->setState(STATE_NORMAL);
-
-        w->getCursor()->adjust();
-        w->render();
-    }
-}
-void Commanda::run(Window *w) const{ enterInsertMode(w, 1); }
 
 void CommandUp::run(Window *w) const{ w->getCursor()->moveY(-1); }
 void CommandDown::run(Window *w) const{ w->getCursor()->moveY(1); }
@@ -151,7 +96,101 @@ void Commandu::run(Window *w) const{  // undo
     if(eventHistory.empty()){
         w->showStatus("Already at oldest change");
     } else {
-        eventHistory.top()->reverseExecute(w);
+        std::unique_ptr<Event> &topEvent = eventHistory.top();
+        topEvent->restore(w);
         eventHistory.pop();
+        topEvent.reset();
     }
 }
+
+
+Commandi::Commandi():UndoableCommand{105}{}
+Commanda::Commanda():UndoableCommand{97}{}
+Commandx::Commandx():UndoableCommand{120}{}
+CommandX::CommandX():UndoableCommand{88}{}
+
+
+std::unique_ptr<StoreChangeEvent> enterInsertMode(const UndoableCommand *command, Window *w, const int &initShift){
+    std::unique_ptr<Store> preStore = std::make_unique<Store>(*(w->getStore()));
+    int cursorY = std::distance(w->getStore()->getStrs().begin(), w->getCursor()->getItLst());
+    int cursorX = std::distance((w->getCursor()->getItLst())->begin(), w->getCursor()->getItStr());
+    w->showStatus("-- INSERT -- ");
+    w->setState(STATE_INSERT);
+    w->getCursor()->moveX(initShift);
+    int ch;
+    bool inserted = false;
+    while (ch = getch()) {
+        if (ch == 27) break;  // escape
+        else if (ch == 259) w->getCursor()->moveY(-1);
+        else if (ch == 258) w->getCursor()->moveY(1);
+        else if (ch == 260) w->getCursor()->moveX(-1);
+        else if (ch == 261) w->getCursor()->moveX(1);
+        else if (ch == 410) w->resize();
+        else if (ch == 8 || ch == 263) {    // backspace
+            w->getCursor()->erase();
+            inserted = true;
+            w->render();
+        } else {
+            w->getCursor()->insert(ch);
+            inserted = true;
+            w->render();
+        }
+    }
+    w->setState(STATE_NORMAL);
+    w->getCursor()->moveX(-1);
+    w->showStatus("");
+
+    if(inserted){
+        return std::make_unique<StoreChangeEvent>(command, std::move(preStore), cursorY, cursorX);
+    } else{
+        preStore.reset();
+        return nullptr;
+    }
+}
+
+void restoreStore(Window *w, StoreChangeEvent* storeChangeEvent){
+    if(storeChangeEvent){
+        w->getUniqueStore().swap(storeChangeEvent->getPreStore());
+        std::list<std::string>::iterator &itLst = w->getCursor()->getItLst();
+        std::string::iterator &itStr = w->getCursor()->getItStr();
+        itLst = w->getStore()->getStrs().begin();
+        for(int i = 0; i < storeChangeEvent->getCursorY(); ++i) ++itLst;
+        itStr = w->getCursor()->getItLst()->begin();
+        itStr += storeChangeEvent->getCursorX();
+        w->getCursor()->adjust();
+        w->render();
+    }
+}
+
+std::unique_ptr<Event> Commandi::runEvent(Window *w) const{ return enterInsertMode(this, w, 0); }
+void Commandi::reverseExecute(Window *w, Event *e) const{ restoreStore(w, dynamic_cast<StoreChangeEvent*>(e)); }
+std::unique_ptr<Event> Commanda::runEvent(Window *w) const{ return enterInsertMode(this, w, 1); }
+void Commanda::reverseExecute(Window *w, Event *e) const{ restoreStore(w, dynamic_cast<StoreChangeEvent*>(e)); }
+
+
+std::unique_ptr<StoreChangeEvent> deleteOne(const UndoableCommand *command, Window *w, const int &shift){
+    std::unique_ptr<Store> preStore = std::make_unique<Store>(*(w->getStore()));
+    w->setState(STATE_INSERT);
+    w->getCursor()->moveX(shift);
+    bool erased = false;
+    if (!w->getCursor()->isAtLineBegin()){
+        w->getCursor()->erase();
+        erased = true;
+    }
+    w->setState(STATE_NORMAL);
+    int cursorY = std::distance(w->getStore()->getStrs().begin(), w->getCursor()->getItLst());
+    int cursorX = std::distance((w->getCursor()->getItLst())->begin(), w->getCursor()->getItStr());
+    if (erased){
+        if(w->getCursor()->isAtLineEnd(1)) w->getCursor()->moveX(-1);
+        w->render();
+        return std::make_unique<StoreChangeEvent>(command, std::move(preStore), cursorY, cursorX);
+    } else{
+        preStore.reset();
+        return nullptr;
+    }
+}
+
+std::unique_ptr<Event> Commandx::runEvent(Window *w) const{ return deleteOne(this, w, 1); }
+void Commandx::reverseExecute(Window *w, Event *e) const{ restoreStore(w, dynamic_cast<StoreChangeEvent*>(e)); }
+std::unique_ptr<Event> CommandX::runEvent(Window *w) const{ return deleteOne(this, w, 0); }
+void CommandX::reverseExecute(Window *w, Event *e) const{ restoreStore(w, dynamic_cast<StoreChangeEvent*>(e)); }

@@ -11,6 +11,7 @@ private:
 public:
     Store() = default;
     Store(std::list<std::string> strs);
+    Store(const Store &other);
     ~Store() = default;
     std::string getRenderString(const int &maxY, const int &maxX);
     void moveY(const int &y);

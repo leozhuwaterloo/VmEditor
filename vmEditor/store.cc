@@ -1,7 +1,12 @@
 #include "store.h"
-
+#include <iostream>
 Store::Store(std::list<std::string> strs):strs{strs}{ itCurrY = getStrs().cbegin(); }
 
+Store::Store(const Store &other): currY{other.getCurrY()}, numInvalid{other.getNumInvalid()}{
+    strs.assign(other.strs.begin(), other.strs.end());
+    itCurrY = strs.begin();
+    for(int i = 0; i < currY; ++i) ++itCurrY;
+};
 
 std::string Store::getRenderString(const int &maxY, const int &maxX){
     std::string res;

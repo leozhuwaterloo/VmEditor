@@ -3,6 +3,7 @@
 #include <vector>
 #include <list>
 #include <string>
+#include <memory>
 
 class UndoableCommand;
 class Window;
@@ -14,18 +15,20 @@ private:
 public:
     Event(const UndoableCommand *command);
     virtual ~Event() = default;
-    void reExecute(Window *w);
-    void reverseExecute(Window *w);
+    virtual void reExecute(Window *w);
+    virtual void restore(Window *w);
 };
 
 
-class InsertEvent: public Event{
+class StoreChangeEvent: public Event{
+private:
+    std::unique_ptr<Store> preStore;
+    int cursorY, cursorX;
 public:
-    std::list<std::string>::iterator itLst;
-    std::string::iterator itStr;
-    std::vector<int> inserted;
-    InsertEvent(const UndoableCommand *command, std::list<std::string>::iterator itLst,
-        std::string::iterator itStr, std::vector<int> inserted);
+    StoreChangeEvent(const UndoableCommand *command, std::unique_ptr<Store> preStore, int cursorY, int cursorX);
+    std::unique_ptr<Store> &getPreStore();
+    int getCursorY() const;
+    int getCursorX() const;
 };
 
 #endif
