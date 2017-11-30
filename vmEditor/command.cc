@@ -12,7 +12,7 @@ https://www.fprintf.net/vimCheatSheet.html
 */
 
 /*
-cc c[any motion] dd d[any motion] h j k l n o p q s yy y[any motion]
+cc c[any motion] dd d[any motion] n o p q s yy y[any motion]
 A I J N O P S . ; / ? % @
 ^b ^d ^f ^g ^u
 */
@@ -38,6 +38,10 @@ CommandUp::CommandUp():Command{259}{}
 CommandDown::CommandDown():Command{258}{}
 CommandRight::CommandRight():Command{261}{}
 CommandLeft::CommandLeft():Command{260}{}
+Commandh::Commandh():Command{104}{}
+Commandl::Commandl():Command{108}{}
+Commandk::Commandk():Command{107}{}
+Commandj::Commandj():Command{106}{}
 CommandResize::CommandResize():Command{410}{}
 Commandw::Commandw():Command{119}{}
 Commandb::Commandb():Command{98}{}
@@ -52,6 +56,11 @@ void CommandUp::run(Window *w) const{ w->getCursor()->moveY(-1); }
 void CommandDown::run(Window *w) const{ w->getCursor()->moveY(1); }
 void CommandRight::run(Window *w) const{ w->getCursor()->moveX(1); }
 void CommandLeft::run(Window *w) const{ w->getCursor()->moveX(-1); }
+
+void Commandh::run(Window *w) const{ w->getCursor()->moveX(-1); }
+void Commandl::run(Window *w) const{ w->getCursor()->moveX(1); }
+void Commandk::run(Window *w) const{ w->getCursor()->moveY(-1); }
+void Commandj::run(Window *w) const{ w->getCursor()->moveY(1); }
 
 void CommandResize::run(Window *w) const{ w->resize(); }
 

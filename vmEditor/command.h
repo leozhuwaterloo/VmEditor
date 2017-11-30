@@ -53,6 +53,30 @@ public:
     virtual void run(Window *w) const override;
 };
 
+class Commandh: public Command{
+public:
+    Commandh();
+    virtual void run(Window *w) const override;
+};
+
+class Commandl: public Command{
+public:
+    Commandl();
+    virtual void run(Window *w) const override;
+};
+
+class Commandk: public Command{
+public:
+    Commandk();
+    virtual void run(Window *w) const override;
+};
+
+class Commandj: public Command{
+public:
+    Commandj();
+    virtual void run(Window *w) const override;
+};
+
 class CommandResize: public Command{
 public:
     CommandResize();

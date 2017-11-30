@@ -21,6 +21,10 @@ void initCommands(KeyListener *keyListener){
     keyListener->addCommand(std::make_unique<CommandDown>());
     keyListener->addCommand(std::make_unique<CommandLeft>());
     keyListener->addCommand(std::make_unique<CommandRight>());
+    keyListener->addCommand(std::make_unique<Commandh>());
+    keyListener->addCommand(std::make_unique<Commandl>());
+    keyListener->addCommand(std::make_unique<Commandk>());
+    keyListener->addCommand(std::make_unique<Commandj>());
     keyListener->addCommand(std::make_unique<CommandResize>());
     keyListener->addCommand(std::make_unique<Commandw>());
     keyListener->addCommand(std::make_unique<Commandb>());
