@@ -1,4 +1,7 @@
-void clamp(int &x, const int &low, const int &high){
+#ifndef UTILS_H
+#define UTILS_H
+
+inline void clamp(int &x, const int &low, const int &high){
     if(x < low){
         x = low;
     } else if (x >= high){
@@ -7,7 +10,7 @@ void clamp(int &x, const int &low, const int &high){
 }
 
 
-int clampReturn(const int &x, const int &low, const int &high){
+inline int clampReturn(const int &x, const int &low, const int &high){
     int _x = x;
     if(_x < low){
         _x = low;
@@ -16,3 +19,5 @@ int clampReturn(const int &x, const int &low, const int &high){
     }
     return _x;
 }
+
+#endif

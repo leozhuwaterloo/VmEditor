@@ -16,7 +16,9 @@ void initHighlighter(ColorManager *colorManagerr);
 
 void initCommands(KeyListener *keyListener){
     keyListener->addCommand(std::make_unique<Commandi>());
+    keyListener->addCommand(std::make_unique<CommandI>());
     keyListener->addCommand(std::make_unique<Commanda>());
+    keyListener->addCommand(std::make_unique<CommandA>());
     keyListener->addCommand(std::make_unique<CommandUp>());
     keyListener->addCommand(std::make_unique<CommandDown>());
     keyListener->addCommand(std::make_unique<CommandLeft>());

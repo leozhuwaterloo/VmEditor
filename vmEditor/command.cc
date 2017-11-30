@@ -3,6 +3,7 @@
 #include "keylistener.h"
 #include "event.h"
 #include "store.h"
+#include "utils.h"
 #include <locale>
 #include <ncurses.h>
 #include <stack>
@@ -135,7 +136,9 @@ void CommandF::run(Window *w) const{ find(w, -1, getch()); }
 
 
 Commandi::Commandi():UndoableCommand{105}{}
+CommandI::CommandI():UndoableCommand{73}{}
 Commanda::Commanda():UndoableCommand{97}{}
+CommandA::CommandA():UndoableCommand{65}{}
 Commandx::Commandx():UndoableCommand{120}{}
 CommandX::CommandX():UndoableCommand{88}{}
 Commandr::Commandr():UndoableCommand{114}{}
@@ -233,7 +236,7 @@ void restoreStore(Window *w, StoreChangeEvent* storeChangeEvent){
         itLst = w->getStore()->getStrs().begin();
         for(int i = 0; i < storeChangeEvent->getCursorY(); ++i) ++itLst;
         itStr = w->getCursor()->getItLst()->begin();
-        itStr += storeChangeEvent->getCursorX();
+        itStr += clampReturn(storeChangeEvent->getCursorX(), 0, itLst->length()-1);
         w->getCursor()->adjust();
         w->render();
     }
@@ -241,9 +244,12 @@ void restoreStore(Window *w, StoreChangeEvent* storeChangeEvent){
 
 std::vector<std::unique_ptr<Event>> Commandi::runEvent(Window *w) const{ return enterInsertMode(this, w, 0); }
 void Commandi::reverseExecute(Window *w, Event *e) const{ restoreStore(w, dynamic_cast<StoreChangeEvent*>(e)); }
+std::vector<std::unique_ptr<Event>> CommandI::runEvent(Window *w) const{ w->getCursor()->moveLineBeginNonWs(); return enterInsertMode(this, w, 0); }
+void CommandI::reverseExecute(Window *w, Event *e) const{ restoreStore(w, dynamic_cast<StoreChangeEvent*>(e)); }
 std::vector<std::unique_ptr<Event>> Commanda::runEvent(Window *w) const{ return enterInsertMode(this, w, 1); }
 void Commanda::reverseExecute(Window *w, Event *e) const{ restoreStore(w, dynamic_cast<StoreChangeEvent*>(e)); }
-
+std::vector<std::unique_ptr<Event>> CommandA::runEvent(Window *w) const{ w->getCursor()->moveLineEnd(); return enterInsertMode(this, w, 1); }
+void CommandA::reverseExecute(Window *w, Event *e) const{ restoreStore(w, dynamic_cast<StoreChangeEvent*>(e)); }
 
 std::vector<std::unique_ptr<Event>> deleteOne(const UndoableCommand *command, Window *w, const int &shift){
     std::vector<std::unique_ptr<Event>> events;
