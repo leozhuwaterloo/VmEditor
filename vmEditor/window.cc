@@ -12,7 +12,7 @@
 #include <stdlib.h>
 #include <locale>
 
-Window::Cursor::Cursor(int y, int x, Window *window):y{y}, x{x}, nLine{y+1}, nChar{x+1}, xLoss{0}, preX{x}, window{window}{}
+Window::Cursor::Cursor(int y, int x, Window *window):y{y}, x{x}, nLine{y+1}, nChar{x+1}, xLoss{0}, preX{x}, window{window}, cursorState{STATE_EDIT}{}
 void Window::Cursor::init(Store *store){
     itLst = store->getStrs().begin();
     itStr = itLst->begin();
@@ -58,13 +58,16 @@ void Window::Cursor::adjust(){
     preX = window->getMaxX() * xLoss + x;
 }
 void Window::Cursor::moveTo(const int &y, const int &x){
-    this->y = y;
-    this->x = x;
-    clamp(this->x, 0, window->getMaxX()-1);
-    clamp(this->y, 0, window->getMaxY()-1);
-    window->refreshCursor();
+    if(cursorState == STATE_STATUS){
+        this->statusY = y;
+        this->statusX = x;
+        clampReturn(this->statusY, 0, window->getMaxY()-1);
+        clampReturn(this->statusX, 0, window->getMaxX()-1);
+        window->refreshCursor();
+    }
 }
 void Window::Cursor::moveY(const int &y){
+    if(cursorState == STATE_STATUS) return;
     if(itLst != window->getStore()->getStrs().end() && std::next(itLst, y) != window->getStore()->getStrs().end() && (this->y + y + window->getStore()->getCurrY()) >= 0){
         size_t yDiff = 0;
         for(int i = 0; i < std::abs(y); ++i){
@@ -116,6 +119,7 @@ void Window::Cursor::moveY(const int &y){
     }
 }
 void Window::Cursor::moveX(const int &x){
+    if(cursorState == STATE_STATUS) return;
     int xBound = itLst->length()-1+window->getStateLineEnd();
     int nextX = clampReturn(preX, 0, xBound) + x;
     if(window->getStateLineEnd() == 1 && preX >= xBound && currChar()){
@@ -142,6 +146,7 @@ void Window::Cursor::moveX(const int &x){
     }
 }
 void Window::Cursor::moveOne(const int &n) {
+    if(cursorState == STATE_STATUS) return;
     if (n > 0) {
         if (isAtEnd()) return;
         int oldX = x;
@@ -160,13 +165,15 @@ void Window::Cursor::moveOne(const int &n) {
         }
     }
 }
-void Window::Cursor::moveLineBegin() { while (!isAtLineBegin()) moveX(-1); }
-void Window::Cursor::moveLineEnd() { while (!isAtLineEnd()) moveX(1); }
+void Window::Cursor::moveLineBegin() { if(cursorState == STATE_STATUS) return; while (!isAtLineBegin()) moveX(-1); }
+void Window::Cursor::moveLineEnd() { if(cursorState == STATE_STATUS) return; while (!isAtLineEnd()) moveX(1); }
 void Window::Cursor::moveLineBeginNonWs() {
+    if(cursorState == STATE_STATUS) return;
     moveLineBegin();
     while (!isAtLineEnd() && std::isspace(currChar())) moveX(1);
 }
 void Window::Cursor::insert(char c) {
+    if(cursorState == STATE_STATUS) return;
     if (c == 10){ //enter
         std::string first_half = std::string(itLst->begin(), itStr);
         std::string second_half = std::string(itStr, itLst->end());
@@ -181,6 +188,7 @@ void Window::Cursor::insert(char c) {
     }
 }
 void Window::Cursor::erase() {
+    if(cursorState == STATE_STATUS) return;
     if(isAtLineBegin()){
         if(!isAtBegin()){
             std::string currLineContent = *itLst;
@@ -196,8 +204,8 @@ void Window::Cursor::erase() {
         itStr = itLst->erase(itStr);
     }
 }
-const int Window::Cursor::getY() const{ return y; }
-const int Window::Cursor::getX() const{ return x; }
+const int Window::Cursor::getY() const{ if (cursorState == STATE_EDIT) return y; else return statusY; }
+const int Window::Cursor::getX() const{ if (cursorState == STATE_EDIT) return x; else return statusX; }
 std::list<std::string>::iterator &Window::Cursor::getItLst() { return itLst; }
 std::string::iterator &Window::Cursor::getItStr() { return itStr; }
 const int Window::Cursor::getNLine() const{ return nLine; }
@@ -209,6 +217,7 @@ bool Window::Cursor::isAtEnd() const { return itStr + 1 == std::next(window->get
 bool Window::Cursor::isAtLineBegin() const { return itStr == itLst->begin(); }
 bool Window::Cursor::isAtLineEnd(const int &offset) const { return itLst->length() == 0 || itStr + 1 - offset == itLst->end(); }
 bool Window::Cursor::isAtLineEnd() const { return isAtLineEnd(0); }
+void Window::Cursor::setState(CursorState cursorState){ this->cursorState = cursorState; }
 
 Window::Window(std::unique_ptr<KeyListener> keyListener,
     std::unique_ptr<ColorManager> colorManager, std::unique_ptr<Parser> parser):

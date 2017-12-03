@@ -7,6 +7,7 @@
 #include <locale>
 #include <ncurses.h>
 #include <stack>
+#include <regex>
 
 /*
 https://www.fprintf.net/vimCheatSheet.html
@@ -14,7 +15,7 @@ https://www.fprintf.net/vimCheatSheet.html
 
 /*
 cc c[any motion] dd d[any motion] n o p q s yy y[any motion]
-J N O P S . ; / ? % @
+N O P S . ; / ? % @
 ^b ^d ^f ^g ^u
 */
 
@@ -52,6 +53,8 @@ CommandCaret::CommandCaret():Command{94}{}
 Commandu::Commandu():Command{117}{}
 Commandf::Commandf():Command{102}{}
 CommandF::CommandF():Command{70}{}
+CommandSlash::CommandSlash():Command{47}{}
+CommandQuestion::CommandQuestion():Command{63}{}
 
 void CommandUp::run(Window *w) const{ w->getCursor()->moveY(-1); }
 void CommandDown::run(Window *w) const{ w->getCursor()->moveY(1); }
@@ -134,6 +137,58 @@ void find(Window *w, const int &direction, const char &target){
 void Commandf::run(Window *w) const{ find(w, 1, getch()); }
 void CommandF::run(Window *w) const{ find(w, -1, getch()); }
 
+
+void longSearch(const char &commandChar, Window *w, const int &direction){
+    set_escdelay(1000);
+    w->getCursor()->setState(STATE_STATUS);
+    std::string commandSymbol = std::string(1, commandChar);
+    std::string target;
+    w->showStatus(commandSymbol);
+    w->getCursor()->moveTo(w->getMaxY()-1, 1);
+    int ch;
+    while (ch = getch()){
+        if(ch == 10){
+            w->getCursor()->setState(STATE_EDIT);
+            std::list<std::string>::iterator initItLst = w->getCursor()->getItLst();
+            std::string::iterator initItStr = w->getCursor()->getItStr();
+            std::regex reg = std::regex(regexEscape(target));
+            std::smatch m;
+            bool notFound = false;
+            while(!std::regex_search(w->getCursor()->getItLst()->cbegin() +
+            clampReturn((w->getCursor()->getItStr() - w->getCursor()->getItLst()->begin()) + 1, 0, w->getCursor()->getItLst()->length()),
+            w->getCursor()->getItLst()->cend(), m, reg)){
+                if(std::next(w->getCursor()->getItLst(), 1) == w->getStore()->getStrs().end()){ notFound=true; break; }
+                ++(w->getCursor()->getItLst());
+                w->getCursor()->getItStr() = w->getCursor()->getItLst()->begin();
+            }
+            if(!notFound){
+                w->getCursor()->getItStr() += m.position() + 1;
+                w->getCursor()->adjust();
+            }else{
+                w->getCursor()->getItLst() =  initItLst;
+                w->getCursor()->getItStr() = initItStr;
+            }
+            break;
+        }
+        else if(ch == 27) break;
+        else{
+            if(ch == 8 || ch == 263){
+                target = target.substr(0, target.length()-1);
+            } else {
+                target += std::string(1, ch);
+            }
+            w->showStatus(commandSymbol + target);
+            w->getCursor()->moveTo(w->getMaxY()-1, target.length() + 1);
+        }
+    }
+    w->getCursor()->setState(STATE_EDIT);
+    w->showStatus("");
+    set_escdelay(0);
+}
+
+
+void CommandSlash::run(Window *w) const{ longSearch(getKeys().at(0), w, 1); }
+void CommandQuestion::run(Window *w) const{ longSearch(getKeys().at(0), w, -1); }
 
 Commandi::Commandi():UndoableCommand{105}{}
 CommandI::CommandI():UndoableCommand{73}{}

@@ -131,6 +131,18 @@ public:
     virtual void run(Window *w) const override;
 };
 
+class CommandSlash: public Command {
+public:
+    CommandSlash();
+    virtual void run(Window *w) const override;
+};
+
+class CommandQuestion: public Command {
+public:
+    CommandQuestion();
+    virtual void run(Window *w) const override;
+};
+
 class Commandi: public UndoableCommand{
 public:
     Commandi();

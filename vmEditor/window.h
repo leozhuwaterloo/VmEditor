@@ -10,15 +10,18 @@ class Parser;
 class Store;
 
 enum State { STATE_INSERT, STATE_NORMAL };
+enum CursorState { STATE_STATUS, STATE_EDIT };
 
 class Window{
     class Cursor{
     private:
         int y, x;
+        int statusY, statusX;
         int nLine, nChar;
         int xLoss;
         int preX;
         Window *window;
+        CursorState cursorState;
         std::list<std::string>::iterator itLst;
         std::string::iterator itStr;
     public:
@@ -48,6 +51,7 @@ class Window{
         bool isAtLineBegin() const;
         bool isAtLineEnd(const int &offset) const;
         bool isAtLineEnd() const;
+        void setState(CursorState cursorState);
     };
 
 private:
