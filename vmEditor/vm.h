@@ -54,6 +54,7 @@ void initCommands(KeyListener *keyListener){
     keyListener->addCommand(std::make_unique<Commandq>());
     keyListener->addCommand(std::make_unique<CommandAt>());
     keyListener->addCommand(std::make_unique<CommandDot>());
+    keyListener->addCommand(std::make_unique<CommandSemi>());
 }
 
 void initColors(ColorManager *colorManager){

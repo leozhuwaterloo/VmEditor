@@ -173,6 +173,11 @@ public:
     virtual void run(Window *w) const override;
 };
 
+class CommandSemi: public Command {
+public:
+    CommandSemi();
+    virtual void run(Window *w) const override;
+};
 
 class Commandi: public UndoableCommand{
 public:

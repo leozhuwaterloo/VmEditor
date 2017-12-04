@@ -11,7 +11,7 @@ class Event;
 
 class KeyListener{
 private:
-    bool searched, recording;
+    bool searched, recording, finded;
     int targetReg;
     std::stack<int> trigger;
     std::map<int, std::vector<int>> macros;
@@ -19,6 +19,7 @@ private:
     std::vector<int> currKeys;
     std::stack<std::unique_ptr<Event>> eventHistory;
     std::pair<std::string, int> latestSearch;
+    std::pair<char, int> latestFind;
 public:
     KeyListener();
     ~KeyListener() = default;
@@ -27,6 +28,9 @@ public:
     std::pair<std::string, int> &getLatestSearch();
     bool getSearched() const;
     void setLatestSearch(const std::string &target, const int &direction);
+    std::pair<char, int> &getLatestFind();
+    bool getFinded() const;
+    void setLatestFind(const char &target, const int &direction);
     std::stack<std::unique_ptr<Event>> &getEventHistory();
     bool isRecording() const;
     void startRecording(const int &targetReg);

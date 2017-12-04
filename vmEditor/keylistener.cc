@@ -32,6 +32,9 @@ void KeyListener::addCommand(std::unique_ptr<Command> command) {
 std::pair<std::string, int> &KeyListener::getLatestSearch(){ return latestSearch; }
 bool KeyListener::getSearched() const{ return searched; }
 void KeyListener::setLatestSearch(const std::string &target, const int &direction){ latestSearch = std::make_pair(target, direction); searched = true; }
+std::pair<char, int> &KeyListener::getLatestFind(){ return latestFind; }
+bool KeyListener::getFinded() const{ return finded; }
+void KeyListener::setLatestFind(const char &target, const int &direction){ latestFind = std::make_pair(target, direction); finded = true; }
 std::stack<std::unique_ptr<Event>> &KeyListener::getEventHistory(){ return eventHistory; }
 bool KeyListener::isRecording() const{ return recording; }
 void KeyListener::startRecording(const int &targetReg){ recording = true; this->targetReg = targetReg; macros[targetReg].clear(); }

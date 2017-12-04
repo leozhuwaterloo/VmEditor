@@ -17,7 +17,7 @@ https://www.fprintf.net/vimCheatSheet.html
 
 /*
 cc c[any motion] dd d[any motion] p s yy y[any motion]
-P S ; %
+P S %
 ^b ^d ^u
 */
 
@@ -62,6 +62,7 @@ CommandN::CommandN():Command{78}{}
 CommandCtrlf::CommandCtrlf():Command{6}{}
 CommandCtrlg::CommandCtrlg():Command{7}{}
 Commandq::Commandq():Command{113}{}
+CommandSemi::CommandSemi():Command{59}{}
 
 void CommandUp::run(Window *w) const{ w->getCursor()->moveY(-1); }
 void CommandDown::run(Window *w) const{ w->getCursor()->moveY(1); }
@@ -128,6 +129,7 @@ void Commandu::run(Window *w) const{
 }
 
 void find(Window *w, const int &direction, const char &target){
+    w->getKeyListener()->setLatestFind(target, direction);
     std::string::iterator initIt = w->getCursor()->getItStr();
     bool found = false;
     do{
@@ -248,6 +250,12 @@ void Commandq::run(Window *w) const{
         if(std::isalnum(ch)) w->getKeyListener()->startRecording(ch);
     }
     w->showStatus("");
+}
+
+void CommandSemi::run(Window *w) const{
+    if(!w->getKeyListener()->getFinded()) return;
+    std::pair<char, int> latestFind = w->getKeyListener()->getLatestFind();
+    find(w, latestFind.second, latestFind.first);
 }
 
 
