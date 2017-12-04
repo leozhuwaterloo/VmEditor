@@ -10,18 +10,21 @@ KeyListener::KeyListener():searched{false}, recording{false}{}
 
 void KeyListener::init(Window *window) {
     int c;
+    int modifier = 1;
     while(window->isRunning() && (c = get())){
         currKeys.push_back(c);
         if(commands.find(currKeys) != commands.end()){
-            std::vector<std::unique_ptr<Event>> events = commands[currKeys]->execute(window);
-            for(auto &e: events){
-                eventHistory.push(std::move(e));
-                window->getSaver()->setModified(true);
+            for(int i = 0; i < modifier; ++i){
+                std::vector<std::unique_ptr<Event>> events = commands[currKeys]->execute(window);
+                for(auto &e: events){
+                    eventHistory.push(std::move(e));
+                    window->getSaver()->setModified(true);
+                }
             }
-        }else{
-            window->showStatus(std::to_string(c));
+            modifier = 1;
         }
         currKeys.clear();
+        if(std::isdigit(c)) modifier = c - '0';
     }
 }
 
