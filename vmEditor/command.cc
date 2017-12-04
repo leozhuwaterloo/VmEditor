@@ -289,6 +289,7 @@ CommandAt::CommandAt():UndoableCommand{64}{}
 CommandDot::CommandDot():UndoableCommand{46}{}
 Commandc::Commandc():UndoableCommand{99}{}
 Commandd::Commandd():UndoableCommand{100}{}
+Commandy::Commandy():UndoableCommand{121}{}
 Commandp::Commandp():UndoableCommand{112}{}
 CommandP::CommandP():UndoableCommand{80}{}
 Commands::Commands():UndoableCommand{115}{}
@@ -720,6 +721,14 @@ void Commandc::reverseExecute(Window *w, Event *e) const{ restoreStore(w, dynami
 std::vector<std::unique_ptr<Event>> Commandd::runEvent(Window *w) const{ return cut(this, w, false, 100); }
 void Commandd::reverseExecute(Window *w, Event *e) const{ restoreStore(w, dynamic_cast<StoreChangeEvent*>(e)); }
 
+std::vector<std::unique_ptr<Event>> Commandy::runEvent(Window *w) const{
+    std::vector<std::unique_ptr<Event>> events = cut(this, w, false, 121);
+    restoreStore(w, dynamic_cast<StoreChangeEvent*>(events.at(0).get()));
+    events.at(0).reset();
+    events.clear();
+    return events;
+}
+void Commandy::reverseExecute(Window *w, Event *e) const{ restoreStore(w, dynamic_cast<StoreChangeEvent*>(e)); }
 
 std::vector<std::unique_ptr<Event>> paste(const UndoableCommand *command, Window *w, const int &direction){
     std::vector<std::unique_ptr<Event>> events;
