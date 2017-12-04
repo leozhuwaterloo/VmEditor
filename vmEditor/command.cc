@@ -14,8 +14,8 @@ https://www.fprintf.net/vimCheatSheet.html
 */
 
 /*
-cc c[any motion] dd d[any motion] o p q s yy y[any motion]
-O P S . ; % @
+cc c[any motion] dd d[any motion] p q s yy y[any motion]
+P S . ; % @
 ^b ^d ^f ^g ^u
 */
 
@@ -224,8 +224,10 @@ CommandX::CommandX():UndoableCommand{88}{}
 Commandr::Commandr():UndoableCommand{114}{}
 CommandR::CommandR():UndoableCommand{82}{}
 CommandJ::CommandJ():UndoableCommand{74}{}
+Commando::Commando():UndoableCommand{111}{}
+CommandO::CommandO():UndoableCommand{79}{}
 
-std::vector<std::unique_ptr<Event>> enterInsertMode(const UndoableCommand *command, Window *w, const int &initShift, const bool &replace){
+std::vector<std::unique_ptr<Event>> enterInsertMode(const UndoableCommand *command, Window *w, const int &initShift, const bool &replace, const int &newline){
     std::vector<std::unique_ptr<Event>> events;
     if(replace) w->showStatus("-- REPLACE -- ");
     else w->showStatus("-- INSERT -- ");
@@ -236,6 +238,22 @@ std::vector<std::unique_ptr<Event>> enterInsertMode(const UndoableCommand *comma
     std::unique_ptr<Store> preStore;
     int cursorY, cursorX;
     std::stack<char> removed;
+    if(newline != 0){
+        preStore = std::make_unique<Store>(*(w->getStore()));
+        cursorY = std::distance(w->getStore()->getStrs().begin(), w->getCursor()->getItLst());
+        cursorX = std::distance((w->getCursor()->getItLst())->begin(), w->getCursor()->getItStr());
+        inserted = true;
+        if (newline > 0){
+            w->getCursor()->moveLineEnd();
+            w->getCursor()->moveX(1);
+            w->getCursor()->insert(10);
+        } else {
+            w->getCursor()->moveLineBegin();
+            w->getCursor()->insert(10);
+            w->getCursor()->moveY(-1);
+        }
+        w->render();
+    }
     while (ch = getch()) {
         if (ch == 27) break;  // escape
         else if (ch >= 258 && ch <= 261 ){
@@ -305,7 +323,10 @@ std::vector<std::unique_ptr<Event>> enterInsertMode(const UndoableCommand *comma
     return events;
 }
 std::vector<std::unique_ptr<Event>> enterInsertMode(const UndoableCommand *command, Window *w, const int &initShift){
-    return enterInsertMode(command, w, initShift, false);
+    return enterInsertMode(command, w, initShift, false, 0);
+}
+std::vector<std::unique_ptr<Event>> enterInsertMode(const UndoableCommand *command, Window *w, const int &initShift, const bool &replace){
+    return enterInsertMode(command, w, initShift, replace, 0);
 }
 
 
@@ -409,3 +430,8 @@ std::vector<std::unique_ptr<Event>> CommandJ::runEvent(Window *w) const{
     return events;
 }
 void CommandJ::reverseExecute(Window *w, Event *e) const{ restoreStore(w, dynamic_cast<StoreChangeEvent*>(e)); }
+
+std::vector<std::unique_ptr<Event>> Commando::runEvent(Window *w) const{ return enterInsertMode(this, w, 0, false, 1); }
+void Commando::reverseExecute(Window *w, Event *e) const{ restoreStore(w, dynamic_cast<StoreChangeEvent*>(e)); }
+std::vector<std::unique_ptr<Event>> CommandO::runEvent(Window *w) const{ return enterInsertMode(this, w, 0, false, -1); }
+void CommandO::reverseExecute(Window *w, Event *e) const{ restoreStore(w, dynamic_cast<StoreChangeEvent*>(e)); }
