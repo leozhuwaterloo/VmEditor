@@ -53,6 +53,7 @@ void ColorManager::print(const std::string &str, const bool &highlight){
             ++counter;
             addch(c);
         }
+        if(colorMode) attroff(COLOR_PAIR(colors[fontColor][bgColor]));
     } else {
         printw(str.c_str());
     }
