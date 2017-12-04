@@ -17,8 +17,8 @@ https://www.fprintf.net/vimCheatSheet.html
 */
 
 /*
-s yy y[any motion]
-S %
+yy y[any motion]
+%
 ^b
 */
 
@@ -291,6 +291,8 @@ Commandc::Commandc():UndoableCommand{99}{}
 Commandd::Commandd():UndoableCommand{100}{}
 Commandp::Commandp():UndoableCommand{112}{}
 CommandP::CommandP():UndoableCommand{80}{}
+Commands::Commands():UndoableCommand{115}{}
+CommandS::CommandS():UndoableCommand{83}{}
 
 std::vector<std::unique_ptr<Event>> enterInsertMode(const UndoableCommand *command, Window *w, const int &initShift, const bool &replace, const int &newline){
     std::vector<std::unique_ptr<Event>> events;
@@ -749,3 +751,37 @@ void Commandp::reverseExecute(Window *w, Event *e) const{ restoreStore(w, dynami
 
 std::vector<std::unique_ptr<Event>> CommandP::runEvent(Window *w) const{ return paste(this, w, 0); }
 void CommandP::reverseExecute(Window *w, Event *e) const{ restoreStore(w, dynamic_cast<StoreChangeEvent*>(e)); }
+
+std::vector<std::unique_ptr<Event>> Commands::runEvent(Window *w) const{
+    std::vector<std::unique_ptr<Event>> events;
+    std::unique_ptr<Store> preStore = std::make_unique<Store>(*(w->getStore()));
+    int cursorY = std::distance(w->getStore()->getStrs().begin(), w->getCursor()->getItLst());
+    int cursorX = std::distance((w->getCursor()->getItLst())->begin(), w->getCursor()->getItStr());
+    events.push_back(std::make_unique<StoreChangeEvent>(this, std::move(preStore), cursorY, cursorX, std::vector<int>{}));
+    w->setState(STATE_INSERT);
+    w->getCursor()->moveX(1);
+    w->getCursor()->erase();
+    w->render();
+    for(auto &it : enterInsertMode(this, w, 0)){
+        events.push_back(std::move(it));
+    }
+    return events;
+}
+void Commands::reverseExecute(Window *w, Event *e) const{ restoreStore(w, dynamic_cast<StoreChangeEvent*>(e)); }
+
+std::vector<std::unique_ptr<Event>> CommandS::runEvent(Window *w) const{
+    std::vector<std::unique_ptr<Event>> events;
+    std::unique_ptr<Store> preStore = std::make_unique<Store>(*(w->getStore()));
+    int cursorY = std::distance(w->getStore()->getStrs().begin(), w->getCursor()->getItLst());
+    int cursorX = std::distance((w->getCursor()->getItLst())->begin(), w->getCursor()->getItStr());
+    events.push_back(std::make_unique<StoreChangeEvent>(this, std::move(preStore), cursorY, cursorX, std::vector<int>{}));
+    *(w->getCursor()->getItLst()) = "";
+    w->getCursor()->getItStr() = w->getCursor()->getItLst()->begin();
+    w->getCursor()->adjust();
+    w->render();
+    for(auto &it : enterInsertMode(this, w, 0)){
+        events.push_back(std::move(it));
+    }
+    return events;
+}
+void CommandS::reverseExecute(Window *w, Event *e) const{ restoreStore(w, dynamic_cast<StoreChangeEvent*>(e)); }
