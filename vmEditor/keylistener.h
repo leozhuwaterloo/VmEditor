@@ -33,6 +33,7 @@ public:
     void stopRecording();
     std::map<int, std::vector<int>> &getMacros();
     std::string getRecordingStatus() const;
+    void pushStream(const std::vector<int> &stream);
     void stream(const std::vector<int> &stream, Window *window);
     int get();
 };

@@ -39,11 +39,16 @@ void KeyListener::stopRecording(){ recording = false; }
 std::map<int, std::vector<int>> &KeyListener::getMacros(){ return macros; }
 std::string KeyListener::getRecordingStatus() const{ if(recording) return "recording @" + std::string(1, targetReg); else return "";}
 
-void KeyListener::stream(const std::vector<int> &stream, Window *window){
-    std::vector<int> keys;
+
+void KeyListener::pushStream(const std::vector<int> &stream){
     for(std::vector<int>::const_reverse_iterator it = stream.rbegin(); it != stream.rend(); ++it){
         trigger.push(*it);
     }
+}
+
+void KeyListener::stream(const std::vector<int> &stream, Window *window){
+    std::vector<int> keys;
+    pushStream(stream);
 
     while(!trigger.empty()){
         keys.push_back(get());

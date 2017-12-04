@@ -8,14 +8,15 @@
 class UndoableCommand;
 class Window;
 class Store;
+class Event;
 
 class Event{
-private:
+protected:
     const UndoableCommand *command;
 public:
     Event(const UndoableCommand *command);
     virtual ~Event() = default;
-    virtual void reExecute(Window *w);
+    virtual std::vector<std::unique_ptr<Event>> reExecute(Window *w);
     virtual void restore(Window *w);
 };
 
@@ -24,8 +25,10 @@ class StoreChangeEvent: public Event{
 private:
     std::unique_ptr<Store> preStore;
     int cursorY, cursorX;
+    std::vector<int> triggered;
 public:
-    StoreChangeEvent(const UndoableCommand *command, std::unique_ptr<Store> preStore, int cursorY, int cursorX);
+    StoreChangeEvent(const UndoableCommand *command, std::unique_ptr<Store> preStore, int cursorY, int cursorX, const std::vector<int> &triggered);
+    virtual std::vector<std::unique_ptr<Event>> reExecute(Window *w) override;
     std::unique_ptr<Store> &getPreStore();
     int getCursorY() const;
     int getCursorX() const;
