@@ -17,7 +17,7 @@ https://www.fprintf.net/vimCheatSheet.html
 /*
 cc c[any motion] dd d[any motion] p q s yy y[any motion]
 P S . ; % @
-^b ^d ^g ^u
+^b ^d ^u
 */
 
 Command::Command(std::initializer_list<int> keys):keys{keys}{}
