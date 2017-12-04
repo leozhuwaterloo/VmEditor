@@ -13,13 +13,7 @@
 #include "saver.h"
 
 /*
-https://www.fprintf.net/vimCheatSheet.html
-*/
-
-/*
-yy y[any motion]
 %
-^b
 */
 
 Command::Command(std::initializer_list<int> keys):keys{keys}{}
@@ -66,6 +60,7 @@ Commandq::Commandq():Command{113}{}
 CommandSemi::CommandSemi():Command{59}{}
 CommandCtrld::CommandCtrld():Command{4}{}
 CommandCtrlu::CommandCtrlu():Command{21}{}
+CommandCtrlb::CommandCtrlb():Command{2}{}
 
 void CommandUp::run(Window *w) const{ w->getCursor()->moveY(-1); }
 void CommandDown::run(Window *w) const{ w->getCursor()->moveY(1); }
@@ -199,6 +194,7 @@ void longSearch(const char &commandChar, Window *w, const int &direction){
         else if (ch == 410) w->resize();
         else{
             if(ch == 8 || ch == 263){
+                if(target.empty()) break;
                 target = target.substr(0, target.length()-1);
             } else {
                 target += std::string(1, ch);
@@ -269,6 +265,12 @@ void CommandCtrld::run(Window *w) const{
 
 void CommandCtrlu::run(Window *w) const{
     for(int i = 0; i < w->getStore()->getDisplayedLine() / 2; ++i){
+        w->getCursor()->moveY(-1);
+    }
+}
+
+void CommandCtrlb::run(Window *w) const{
+    for(int i = 0; i < w->getStore()->getDisplayedLine() - 1; ++i){
         w->getCursor()->moveY(-1);
     }
 }
@@ -581,6 +583,7 @@ std::vector<std::unique_ptr<Event>> CommandColon::runEvent(Window *w) const{
         else if (ch == 410) w->resize();
         else{
             if(ch == 8 || ch == 263){
+                if(commandString.empty()) {w->showStatus(""); break;}
                 commandString = commandString.substr(0, commandString.length()-1);
             } else {
                 commandString += std::string(1, ch);
