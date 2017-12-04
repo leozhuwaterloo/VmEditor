@@ -29,13 +29,5 @@ inline std::string trim(const std::string &str) {
     return str.substr(begin, end - begin + 1);
 }
 
-inline std::string regexEscape(const std::string &str){
-    std::string res;
-    for(auto &it : str){
-        res += "[" + std::string(1, it) + "]";
-    }
-    return res;
-}
-
 
 #endif

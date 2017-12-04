@@ -246,7 +246,7 @@ void Window::init(const std::string &fileName){
 
 void Window::render(){
     for(int i = 1; i < maxY - 1; ++i){
-        colorManager->mvprintColor(i, 0, "~", COLOR_BLUE);
+        colorManager->mvprintColor(i, 0, "~\n", COLOR_BLUE);
     }
     colorManager->mvprint(0, 0, store->getRenderString(maxY, maxX));
     for(int i = 0; i < store->getNumInvalid(); ++i){
@@ -260,6 +260,7 @@ void Window::resize(){
     getmaxyx(stdscr, maxY, maxX);
     cursor->adjust();
     render();
+    showStatus();
 }
 
 void Window::refreshCursor(){

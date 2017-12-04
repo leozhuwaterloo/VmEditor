@@ -1,6 +1,6 @@
 #include "store.h"
 #include <iostream>
-Store::Store(std::list<std::string> strs):strs{strs}{ itCurrY = getStrs().cbegin(); }
+Store::Store(std::list<std::string> strs):strs{strs}, currY{0}, numInvalid{0}{ itCurrY = getStrs().cbegin(); }
 
 Store::Store(const Store &other): currY{other.getCurrY()}, numInvalid{other.getNumInvalid()}{
     strs.assign(other.strs.begin(), other.strs.end());
@@ -13,11 +13,11 @@ std::string Store::getRenderString(const int &maxY, const int &maxX){
     int i = 0;
     for(std::list<std::string>::const_iterator it = itCurrY; it!= strs.cend(); ++it){
         int lineLength = (*it).length() / maxX + 1;
-        if(i + lineLength > maxY-1) break;
+        if(i + lineLength > maxY-1){ numInvalid = maxY - 1 - i; return res; }
         res += (*it) + "\n";
         i += lineLength;
     }
-    numInvalid = maxY - 1 - i;
+    numInvalid = 0;
     return res;
 }
 

@@ -15,7 +15,7 @@ https://www.fprintf.net/vimCheatSheet.html
 
 /*
 cc c[any motion] dd d[any motion] n o p q s yy y[any motion]
-N O P S . ; / ? % @
+N O P S . ; % @
 ^b ^d ^f ^g ^u
 */
 
@@ -150,27 +150,31 @@ void longSearch(const char &commandChar, Window *w, const int &direction){
         if(ch == 10){
             w->getCursor()->setState(STATE_EDIT);
             std::list<std::string>::iterator initItLst = w->getCursor()->getItLst();
-            std::string::iterator initItStr = w->getCursor()->getItStr();
-            std::regex reg = std::regex(regexEscape(target));
-            std::smatch m;
-            bool notFound = false;
-            while(!std::regex_search(w->getCursor()->getItLst()->cbegin() +
-            clampReturn((w->getCursor()->getItStr() - w->getCursor()->getItLst()->begin()) + 1, 0, w->getCursor()->getItLst()->length()),
-            w->getCursor()->getItLst()->cend(), m, reg)){
-                if(std::next(w->getCursor()->getItLst(), 1) == w->getStore()->getStrs().end()){ notFound=true; break; }
-                ++(w->getCursor()->getItLst());
-                w->getCursor()->getItStr() = w->getCursor()->getItLst()->begin();
+            size_t found;
+            if(direction > 0) found = initItLst->find(target, w->getCursor()->getItStr() - initItLst->begin() + 1);
+            else found = initItLst->substr(0, w->getCursor()->getItStr() - initItLst->begin()).find(target);
+
+            while(found == std::string::npos){
+                if(direction >0 && std::next(w->getCursor()->getItLst(), 1) == w->getStore()->getStrs().end()) break;
+                else if(direction <= 0 && w->getCursor()->getItLst() == w->getStore()->getStrs().begin()) break;
+
+                if(direction > 0) ++(w->getCursor()->getItLst());
+                else --(w->getCursor()->getItLst());
+
+                if(direction > 0) found = w->getCursor()->getItLst()->find(target);
+                else found = w->getCursor()->getItLst()->rfind(target);
             }
-            if(!notFound){
-                w->getCursor()->getItStr() += m.position() + 1;
+
+            if(found != std::string::npos){
+                w->getCursor()->getItStr() = w->getCursor()->getItLst()->begin() + found;
                 w->getCursor()->adjust();
             }else{
                 w->getCursor()->getItLst() =  initItLst;
-                w->getCursor()->getItStr() = initItStr;
             }
             break;
         }
         else if(ch == 27) break;
+        else if (ch == 410) w->resize();
         else{
             if(ch == 8 || ch == 263){
                 target = target.substr(0, target.length()-1);
