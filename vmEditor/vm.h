@@ -58,6 +58,7 @@ void initCommands(KeyListener *keyListener){
     keyListener->addCommand(std::make_unique<CommandCtrld>());
     keyListener->addCommand(std::make_unique<CommandCtrlu>());
     keyListener->addCommand(std::make_unique<Commandc>());
+    keyListener->addCommand(std::make_unique<Commandd>());
     keyListener->addCommand(std::make_unique<Commandp>());
     keyListener->addCommand(std::make_unique<CommandP>());
 }
