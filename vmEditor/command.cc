@@ -17,7 +17,7 @@ https://www.fprintf.net/vimCheatSheet.html
 */
 
 /*
-cc c[any motion] dd d[any motion] s yy y[any motion]
+dd d[any motion] s yy y[any motion]
 S %
 ^b
 */
@@ -651,6 +651,29 @@ std::vector<std::unique_ptr<Event>> Commandc::runEvent(Window *w) const{
                 for(int i = 0; i < (-distance); ++i){ w->getCursor()->erase(); }
                 w->getCursor()->moveX(1);
             }
+        }else{
+            int distance = std::distance(initItLst, w->getStore()->getStrs().begin()) - std::distance(w->getCursor()->getItLst(), w->getStore()->getStrs().begin());
+            std::string res;
+            if (distance > 0){
+                while(w->getCursor()->getItLst() != initItLst){
+                    res = *(w->getCursor()->getItLst()) + "\n" + res;
+                    w->getCursor()->getItLst() = w->getStore()->getStrs().erase(w->getCursor()->getItLst());
+                    --(w->getCursor()->getItLst());
+                }
+                res = *(initItLst) + "\n" + res;
+                *(initItLst) = "";
+            }else{
+                while(w->getCursor()->getItLst() != initItLst){
+                    res += *(w->getCursor()->getItLst()) + "\n";
+                    w->getCursor()->getItLst() = w->getStore()->getStrs().erase(w->getCursor()->getItLst());
+                }
+                res = *(initItLst) + "\n" + res;
+                *(initItLst) = "";
+            }
+
+            w->getKeyListener()->getRegisters()[0] = res;
+            w->getCursor()->getItStr() = w->getCursor()->getItLst()->begin();
+            w->getCursor()->adjust();
         }
     }
 
