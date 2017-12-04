@@ -16,7 +16,7 @@ https://www.fprintf.net/vimCheatSheet.html
 /*
 cc c[any motion] dd d[any motion] p q s yy y[any motion]
 P S . ; % @
-^b ^d ^f ^g ^u
+^b ^d ^g ^u
 */
 
 Command::Command(std::initializer_list<int> keys):keys{keys}{}
@@ -57,6 +57,8 @@ CommandSlash::CommandSlash():Command{47}{}
 CommandQuestion::CommandQuestion():Command{63}{}
 Commandn::Commandn():Command{110}{}
 CommandN::CommandN():Command{78}{}
+CommandCtrlf::CommandCtrlf():Command{6}{}
+
 
 void CommandUp::run(Window *w) const{ w->getCursor()->moveY(-1); }
 void CommandDown::run(Window *w) const{ w->getCursor()->moveY(1); }
@@ -215,6 +217,17 @@ void CommandN::run(Window *w) const{
     std::pair<std::string, int> latestSearch = w->getKeyListener()->getLatestSearch();
     startSearch(w, latestSearch.first, (0 - latestSearch.second));
 }
+
+void CommandCtrlf::run(Window *w) const{
+    while(std::next(w->getStore()->getItCurrY(), 1) != w->getStore()->getStrs().end()){
+        w->getStore()->moveY(1);
+    }
+    w->getCursor()->getItLst() = std::next(w->getStore()->getStrs().end(), -1);
+    w->getCursor()->getItStr() = w->getCursor()->getItLst()->begin();
+    w->getCursor()->adjust();
+    w->render();
+}
+
 Commandi::Commandi():UndoableCommand{105}{}
 CommandI::CommandI():UndoableCommand{73}{}
 Commanda::Commanda():UndoableCommand{97}{}
