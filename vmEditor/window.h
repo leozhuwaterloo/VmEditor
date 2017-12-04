@@ -80,6 +80,7 @@ public:
     const int getStateLineEnd() const;
     void setState(State state);
     Cursor* getCursor();
+    Parser* getParser();
     Store* getStore();
     std::unique_ptr<Store> &getUniqueStore();
     KeyListener* getKeyListener();

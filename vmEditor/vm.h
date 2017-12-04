@@ -48,6 +48,7 @@ void initCommands(KeyListener *keyListener){
     keyListener->addCommand(std::make_unique<Commando>());
     keyListener->addCommand(std::make_unique<CommandO>());
     keyListener->addCommand(std::make_unique<CommandCtrlf>());
+    keyListener->addCommand(std::make_unique<CommandCtrlg>());
 }
 
 void initColors(ColorManager *colorManager){
@@ -58,6 +59,7 @@ void initColors(ColorManager *colorManager){
     colorManager->addColor(COLOR_GREEN, COLOR_BLACK);
     colorManager->addColor(COLOR_YELLOW, COLOR_BLACK);
     colorManager->addColor(COLOR_WHITE, COLOR_BLACK);
+    colorManager->addColor(COLOR_CYAN, COLOR_BLACK);
     initHighlighter(colorManager);
 }
 

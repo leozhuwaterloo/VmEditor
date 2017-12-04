@@ -246,11 +246,11 @@ void Window::init(const std::string &fileName){
 
 void Window::render(){
     for(int i = 1; i < maxY - 1; ++i){
-        colorManager->mvprintColor(i, 0, "~\n", COLOR_BLUE);
+        colorManager->mvprintColor(i, 0, "~\n", COLOR_CYAN);
     }
     colorManager->mvprint(0, 0, store->getRenderString(maxY, maxX));
     for(int i = 0; i < store->getNumInvalid(); ++i){
-        colorManager->printColor("@\n", COLOR_BLUE);
+        colorManager->printColor("@\n", COLOR_CYAN);
     }
     refreshCursor();
     refresh();
@@ -288,6 +288,7 @@ const int Window::getMaxX() const{ return maxX; }
 const int Window::getStateLineEnd() const{ if (state == STATE_INSERT) return 1; else return 0; }
 void Window::setState(State state){ this->state = state; }
 Window::Cursor* Window::getCursor() { return cursor.get(); }
+Parser* Window::getParser(){ return parser.get(); }
 Store* Window::getStore() { return store.get(); }
 std::unique_ptr<Store> &Window::getUniqueStore() { return store; }
 KeyListener* Window::getKeyListener(){ return keyListener.get(); }

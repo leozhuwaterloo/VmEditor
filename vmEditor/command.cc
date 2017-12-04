@@ -8,6 +8,7 @@
 #include <ncurses.h>
 #include <stack>
 #include <regex>
+#include "parser.h"
 
 /*
 https://www.fprintf.net/vimCheatSheet.html
@@ -58,7 +59,7 @@ CommandQuestion::CommandQuestion():Command{63}{}
 Commandn::Commandn():Command{110}{}
 CommandN::CommandN():Command{78}{}
 CommandCtrlf::CommandCtrlf():Command{6}{}
-
+CommandCtrlg::CommandCtrlg():Command{7}{}
 
 void CommandUp::run(Window *w) const{ w->getCursor()->moveY(-1); }
 void CommandDown::run(Window *w) const{ w->getCursor()->moveY(1); }
@@ -226,6 +227,15 @@ void CommandCtrlf::run(Window *w) const{
     w->getCursor()->getItStr() = w->getCursor()->getItLst()->begin();
     w->getCursor()->adjust();
     w->render();
+}
+
+
+void CommandCtrlg::run(Window *w) const{
+    bool modified = !(w->getKeyListener()->getEventHistory().empty());
+    int total_line = w->getStore()->getStrs().size();
+    int curr_line = std::distance(w->getStore()->getStrs().begin(), w->getCursor()->getItLst()) + 1;
+    w->showStatus("\""+ w->getParser()->getFileName() + "\" " + (modified ? "[Modified] " : "") + std::to_string(total_line) +
+        " lines --" + std::to_string(curr_line * 100 / total_line) + "%--");
 }
 
 Commandi::Commandi():UndoableCommand{105}{}
