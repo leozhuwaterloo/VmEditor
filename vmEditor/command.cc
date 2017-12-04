@@ -14,8 +14,8 @@ https://www.fprintf.net/vimCheatSheet.html
 */
 
 /*
-cc c[any motion] dd d[any motion] n o p q s yy y[any motion]
-N O P S . ; % @
+cc c[any motion] dd d[any motion] o p q s yy y[any motion]
+O P S . ; % @
 ^b ^d ^f ^g ^u
 */
 
@@ -55,6 +55,8 @@ Commandf::Commandf():Command{102}{}
 CommandF::CommandF():Command{70}{}
 CommandSlash::CommandSlash():Command{47}{}
 CommandQuestion::CommandQuestion():Command{63}{}
+Commandn::Commandn():Command{110}{}
+CommandN::CommandN():Command{78}{}
 
 void CommandUp::run(Window *w) const{ w->getCursor()->moveY(-1); }
 void CommandDown::run(Window *w) const{ w->getCursor()->moveY(1); }
@@ -137,6 +139,33 @@ void find(Window *w, const int &direction, const char &target){
 void Commandf::run(Window *w) const{ find(w, 1, getch()); }
 void CommandF::run(Window *w) const{ find(w, -1, getch()); }
 
+void startSearch(Window *w, const std::string &target, const int &direction){
+    if(target.empty()) return;
+    w->getCursor()->setState(STATE_EDIT);
+    std::list<std::string>::iterator initItLst = w->getCursor()->getItLst();
+    size_t found;
+    if(direction > 0) found = initItLst->find(target, w->getCursor()->getItStr() - initItLst->begin() + 1);
+    else found = initItLst->substr(0, w->getCursor()->getItStr() - initItLst->begin()).find(target);
+
+    while(found == std::string::npos){
+        if(direction >0 && std::next(w->getCursor()->getItLst(), 1) == w->getStore()->getStrs().end()) break;
+        else if(direction <= 0 && w->getCursor()->getItLst() == w->getStore()->getStrs().begin()) break;
+
+        if(direction > 0) ++(w->getCursor()->getItLst());
+        else --(w->getCursor()->getItLst());
+
+        if(direction > 0) found = w->getCursor()->getItLst()->find(target);
+        else found = w->getCursor()->getItLst()->rfind(target);
+    }
+
+    if(found != std::string::npos){
+        w->getCursor()->getItStr() = w->getCursor()->getItLst()->begin() + found;
+        w->getCursor()->adjust();
+        w->refreshCursor();
+    }else{
+        w->getCursor()->getItLst() =  initItLst;
+    }
+}
 
 void longSearch(const char &commandChar, Window *w, const int &direction){
     set_escdelay(1000);
@@ -148,29 +177,11 @@ void longSearch(const char &commandChar, Window *w, const int &direction){
     int ch;
     while (ch = getch()){
         if(ch == 10){
-            w->getCursor()->setState(STATE_EDIT);
-            std::list<std::string>::iterator initItLst = w->getCursor()->getItLst();
-            size_t found;
-            if(direction > 0) found = initItLst->find(target, w->getCursor()->getItStr() - initItLst->begin() + 1);
-            else found = initItLst->substr(0, w->getCursor()->getItStr() - initItLst->begin()).find(target);
-
-            while(found == std::string::npos){
-                if(direction >0 && std::next(w->getCursor()->getItLst(), 1) == w->getStore()->getStrs().end()) break;
-                else if(direction <= 0 && w->getCursor()->getItLst() == w->getStore()->getStrs().begin()) break;
-
-                if(direction > 0) ++(w->getCursor()->getItLst());
-                else --(w->getCursor()->getItLst());
-
-                if(direction > 0) found = w->getCursor()->getItLst()->find(target);
-                else found = w->getCursor()->getItLst()->rfind(target);
+            if(target.empty() && w->getKeyListener()->getSearched()){
+                target = w->getKeyListener()->getLatestSearch().first;
             }
-
-            if(found != std::string::npos){
-                w->getCursor()->getItStr() = w->getCursor()->getItLst()->begin() + found;
-                w->getCursor()->adjust();
-            }else{
-                w->getCursor()->getItLst() =  initItLst;
-            }
+            startSearch(w, target, direction);
+            w->getKeyListener()->setLatestSearch(target, direction);
             break;
         }
         else if(ch == 27) break;
@@ -194,6 +205,16 @@ void longSearch(const char &commandChar, Window *w, const int &direction){
 void CommandSlash::run(Window *w) const{ longSearch(getKeys().at(0), w, 1); }
 void CommandQuestion::run(Window *w) const{ longSearch(getKeys().at(0), w, -1); }
 
+void Commandn::run(Window *w) const{
+    if(!w->getKeyListener()->getSearched()) return;
+    std::pair<std::string, int> latestSearch = w->getKeyListener()->getLatestSearch();
+    startSearch(w, latestSearch.first, latestSearch.second);
+}
+void CommandN::run(Window *w) const{
+    if(!w->getKeyListener()->getSearched()) return;
+    std::pair<std::string, int> latestSearch = w->getKeyListener()->getLatestSearch();
+    startSearch(w, latestSearch.first, (0 - latestSearch.second));
+}
 Commandi::Commandi():UndoableCommand{105}{}
 CommandI::CommandI():UndoableCommand{73}{}
 Commanda::Commanda():UndoableCommand{97}{}

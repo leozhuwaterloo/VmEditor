@@ -11,14 +11,19 @@ class Event;
 
 class KeyListener{
 private:
+    bool searched;
     std::map<std::vector<int>, std::unique_ptr<Command>> commands;
     std::vector<int> currKeys;
     std::stack<std::unique_ptr<Event>> eventHistory;
+    std::pair<std::string, int> latestSearch;
 public:
-    KeyListener() = default;
+    KeyListener();
     ~KeyListener() = default;
     void init(Window *window);
     void addCommand(std::unique_ptr<Command> command);
+    std::pair<std::string, int> &getLatestSearch();
+    bool getSearched() const;
+    void setLatestSearch(const std::string &target, const int &direction);
     std::stack<std::unique_ptr<Event>> &getEventHistory();
 };
 

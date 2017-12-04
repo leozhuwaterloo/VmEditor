@@ -5,6 +5,8 @@
 #include "event.h"
 #include "window.h"
 
+KeyListener::KeyListener():searched{false}{}
+
 void KeyListener::init(Window *window) {
     int c;
     while(c = getch()){
@@ -25,4 +27,7 @@ void KeyListener::addCommand(std::unique_ptr<Command> command) {
     commands[command->getKeys()] = std::move(command);
 }
 
+std::pair<std::string, int> &KeyListener::getLatestSearch(){ return latestSearch; }
+bool KeyListener::getSearched() const{ return searched; }
+void KeyListener::setLatestSearch(const std::string &target, const int &direction){ latestSearch = std::make_pair(target, direction); searched = true; }
 std::stack<std::unique_ptr<Event>> &KeyListener::getEventHistory(){ return eventHistory; }

@@ -43,6 +43,8 @@ void initCommands(KeyListener *keyListener){
     keyListener->addCommand(std::make_unique<CommandJ>());
     keyListener->addCommand(std::make_unique<CommandSlash>());
     keyListener->addCommand(std::make_unique<CommandQuestion>());
+    keyListener->addCommand(std::make_unique<Commandn>());
+    keyListener->addCommand(std::make_unique<CommandN>());
 }
 
 void initColors(ColorManager *colorManager){
