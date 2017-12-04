@@ -6,7 +6,7 @@
 class Store{
 private:
     std::list<std::string> strs;
-    int currY, numInvalid;
+    int currY, numInvalid, displayedLine;
     std::list<std::string>::const_iterator itCurrY;
 public:
     Store() = default;
@@ -19,6 +19,7 @@ public:
     std::list<std::string>::const_iterator& getItCurrY();
     int getCurrY() const;
     int getNumInvalid() const;
+    int getDisplayedLine() const;
 };
 
 #endif

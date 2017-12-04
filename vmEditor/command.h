@@ -179,6 +179,18 @@ public:
     virtual void run(Window *w) const override;
 };
 
+class CommandCtrld: public Command {
+public:
+    CommandCtrld();
+    virtual void run(Window *w) const override;
+};
+
+class CommandCtrlu: public Command {
+public:
+    CommandCtrlu();
+    virtual void run(Window *w) const override;
+};
+
 class Commandi: public UndoableCommand{
 public:
     Commandi();

@@ -18,7 +18,7 @@ https://www.fprintf.net/vimCheatSheet.html
 /*
 cc c[any motion] dd d[any motion] p s yy y[any motion]
 P S %
-^b ^d ^u
+^b
 */
 
 Command::Command(std::initializer_list<int> keys):keys{keys}{}
@@ -63,6 +63,8 @@ CommandCtrlf::CommandCtrlf():Command{6}{}
 CommandCtrlg::CommandCtrlg():Command{7}{}
 Commandq::Commandq():Command{113}{}
 CommandSemi::CommandSemi():Command{59}{}
+CommandCtrld::CommandCtrld():Command{4}{}
+CommandCtrlu::CommandCtrlu():Command{21}{}
 
 void CommandUp::run(Window *w) const{ w->getCursor()->moveY(-1); }
 void CommandDown::run(Window *w) const{ w->getCursor()->moveY(1); }
@@ -258,6 +260,17 @@ void CommandSemi::run(Window *w) const{
     find(w, latestFind.second, latestFind.first);
 }
 
+void CommandCtrld::run(Window *w) const{
+    for(int i = 0; i < w->getStore()->getDisplayedLine() / 2; ++i){
+        w->getCursor()->moveY(1);
+    }
+}
+
+void CommandCtrlu::run(Window *w) const{
+    for(int i = 0; i < w->getStore()->getDisplayedLine() / 2; ++i){
+        w->getCursor()->moveY(-1);
+    }
+}
 
 Commandi::Commandi():UndoableCommand{105}{}
 CommandI::CommandI():UndoableCommand{73}{}
