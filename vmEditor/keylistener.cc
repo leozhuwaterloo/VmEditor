@@ -73,3 +73,5 @@ int KeyListener::get(){
     if (recording && ch != 113) macros[targetReg].push_back(ch);
     return ch;
 }
+
+std::map<int, std::string> &KeyListener::getRegisters(){ return registers; }

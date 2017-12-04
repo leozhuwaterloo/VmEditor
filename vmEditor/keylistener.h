@@ -20,6 +20,7 @@ private:
     std::stack<std::unique_ptr<Event>> eventHistory;
     std::pair<std::string, int> latestSearch;
     std::pair<char, int> latestFind;
+    std::map<int, std::string> registers;
 public:
     KeyListener();
     ~KeyListener() = default;
@@ -40,6 +41,7 @@ public:
     void pushStream(const std::vector<int> &stream);
     void stream(const std::vector<int> &stream, Window *window);
     int get();
+    std::map<int, std::string> &getRegisters();
 };
 
 #endif

@@ -8,6 +8,7 @@
 #include <ncurses.h>
 #include <stack>
 #include <regex>
+#include <sstream>
 #include "parser.h"
 #include "saver.h"
 
@@ -16,8 +17,8 @@ https://www.fprintf.net/vimCheatSheet.html
 */
 
 /*
-cc c[any motion] dd d[any motion] p s yy y[any motion]
-P S %
+cc c[any motion] dd d[any motion] s yy y[any motion]
+S %
 ^b
 */
 
@@ -286,6 +287,9 @@ CommandO::CommandO():UndoableCommand{79}{}
 CommandColon::CommandColon():UndoableCommand{58}{}
 CommandAt::CommandAt():UndoableCommand{64}{}
 CommandDot::CommandDot():UndoableCommand{46}{}
+Commandc::Commandc():UndoableCommand{99}{}
+Commandp::Commandp():UndoableCommand{112}{}
+CommandP::CommandP():UndoableCommand{80}{}
 
 std::vector<std::unique_ptr<Event>> enterInsertMode(const UndoableCommand *command, Window *w, const int &initShift, const bool &replace, const int &newline){
     std::vector<std::unique_ptr<Event>> events;
@@ -615,3 +619,75 @@ std::vector<std::unique_ptr<Event>> CommandDot::runEvent(Window *w) const{
     return events;
 }
 void CommandDot::reverseExecute(Window *w, Event *e) const{ restoreStore(w, dynamic_cast<StoreChangeEvent*>(e)); }
+
+
+std::vector<std::unique_ptr<Event>> Commandc::runEvent(Window *w) const{
+    std::vector<std::unique_ptr<Event>> events;
+    int ch = w->getKeyListener()->get();
+    std::vector<int> movement{ch};
+    std::unique_ptr<Store> preStore = std::make_unique<Store>(*(w->getStore()));
+    int cursorY = std::distance(w->getStore()->getStrs().begin(), w->getCursor()->getItLst());
+    int cursorX = std::distance((w->getCursor()->getItLst())->begin(), w->getCursor()->getItStr());
+
+    if(ch == 99){
+        w->getKeyListener()->getRegisters()[0] = *(w->getCursor()->getItLst());
+        *(w->getCursor()->getItLst()) = "";
+        w->getCursor()->getItStr() = w->getCursor()->getItLst()->begin();
+        w->getCursor()->adjust();
+    }else{
+        std::list<std::string>::iterator initItLst = w->getCursor()->getItLst();
+        std::string::iterator initItStr = w->getCursor()->getItStr();
+        w->setState(STATE_INSERT);
+        w->getKeyListener()->stream(movement, w);
+        if(w->getCursor()->getItStr() == initItStr){ preStore.reset(); return events; }
+        if(w->getCursor()->getItLst() == initItLst){
+            int distance = w->getCursor()->getItStr() - initItStr;
+            if(distance > 0){
+                w->getKeyListener()->getRegisters()[0] = std::string(initItStr, w->getCursor()->getItStr());
+                for(int i = 0; i < distance; ++i){ w->getCursor()->erase(); }
+            }else{
+                w->getKeyListener()->getRegisters()[0] = std::string(w->getCursor()->getItStr(), initItStr);
+                w->getCursor()->getItStr() = initItStr;
+                for(int i = 0; i < (-distance); ++i){ w->getCursor()->erase(); }
+                w->getCursor()->moveX(1);
+            }
+        }
+    }
+
+    w->render();
+    events.push_back(std::make_unique<StoreChangeEvent>(this, std::move(preStore), cursorY, cursorX, movement));
+    for(auto &it : enterInsertMode(this, w, 0)){
+        events.push_back(std::move(it));
+    }
+
+    return events;
+}
+void Commandc::reverseExecute(Window *w, Event *e) const{ restoreStore(w, dynamic_cast<StoreChangeEvent*>(e)); }
+
+
+std::vector<std::unique_ptr<Event>> paste(const UndoableCommand *command, Window *w, const int &direction){
+    std::vector<std::unique_ptr<Event>> events;
+    if(w->getKeyListener()->getRegisters().find(0) == w->getKeyListener()->getRegisters().end()) return events;
+    std::unique_ptr<Store> preStore = std::make_unique<Store>(*(w->getStore()));
+    int cursorY = std::distance(w->getStore()->getStrs().begin(), w->getCursor()->getItLst());
+    int cursorX = std::distance((w->getCursor()->getItLst())->begin(), w->getCursor()->getItStr());
+    std::stringstream ss{w->getKeyListener()->getRegisters()[0]};
+    ss >> std::noskipws;
+    char c;
+    w->setState(STATE_INSERT);
+    w->getCursor()->moveX(direction);
+    while (ss >> c){
+        w->getCursor()->insert(c);
+    }
+    w->getCursor()->moveX(-1);
+    w->render();
+    w->setState(STATE_NORMAL);
+    events.push_back(std::make_unique<StoreChangeEvent>(command, std::move(preStore), cursorY, cursorX, std::vector<int>{}));
+    return events;
+}
+
+std::vector<std::unique_ptr<Event>> Commandp::runEvent(Window *w) const{ return paste(this, w, 1); }
+void Commandp::reverseExecute(Window *w, Event *e) const{ restoreStore(w, dynamic_cast<StoreChangeEvent*>(e)); }
+
+std::vector<std::unique_ptr<Event>> CommandP::runEvent(Window *w) const{ return paste(this, w, 0); }
+void CommandP::reverseExecute(Window *w, Event *e) const{ restoreStore(w, dynamic_cast<StoreChangeEvent*>(e)); }

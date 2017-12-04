@@ -290,4 +290,26 @@ public:
     virtual void reverseExecute(Window *w, Event *e) const override;
 };
 
+class Commandc: public UndoableCommand {
+public:
+    Commandc();
+    virtual std::vector<std::unique_ptr<Event>> runEvent(Window *w) const override;
+    virtual void reverseExecute(Window *w, Event *e) const override;
+};
+
+class Commandp: public UndoableCommand {
+public:
+    Commandp();
+    virtual std::vector<std::unique_ptr<Event>> runEvent(Window *w) const override;
+    virtual void reverseExecute(Window *w, Event *e) const override;
+};
+
+class CommandP: public UndoableCommand {
+public:
+    CommandP();
+    virtual std::vector<std::unique_ptr<Event>> runEvent(Window *w) const override;
+    virtual void reverseExecute(Window *w, Event *e) const override;
+};
+
+
 #endif
