@@ -167,6 +167,13 @@ public:
     virtual void run(Window *w) const override;
 };
 
+class Commandq: public Command {
+public:
+    Commandq();
+    virtual void run(Window *w) const override;
+};
+
+
 class Commandi: public UndoableCommand{
 public:
     Commandi();
@@ -248,6 +255,13 @@ public:
 class CommandColon: public UndoableCommand {
 public:
     CommandColon();
+    virtual std::vector<std::unique_ptr<Event>> runEvent(Window *w) const override;
+    virtual void reverseExecute(Window *w, Event *e) const override;
+};
+
+class CommandAt: public UndoableCommand {
+public:
+    CommandAt();
     virtual std::vector<std::unique_ptr<Event>> runEvent(Window *w) const override;
     virtual void reverseExecute(Window *w, Event *e) const override;
 };

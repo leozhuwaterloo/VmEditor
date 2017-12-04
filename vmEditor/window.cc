@@ -273,7 +273,7 @@ void Window::refreshCursor(){
 }
 
 void Window::showStatus(const StatusState &statusState){
-    if(statusState == STATE_GENERAL) colorManager->mvprint(maxY-1, 0, status + "\n", false);
+    if(statusState == STATE_GENERAL) colorManager->mvprint(maxY-1, 0, status + keyListener->getRecordingStatus() + "\n", false);
     else colorManager->mvprintColor(maxY-1, 0, status + "\n", COLOR_WHITE, COLOR_RED);
 
     std::string nLine = std::to_string(cursor->getNLine());

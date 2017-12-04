@@ -16,8 +16,8 @@ https://www.fprintf.net/vimCheatSheet.html
 */
 
 /*
-cc c[any motion] dd d[any motion] p q s yy y[any motion]
-P S . ; % @
+cc c[any motion] dd d[any motion] p s yy y[any motion]
+P S . ; %
 ^b ^d ^u
 */
 
@@ -61,6 +61,7 @@ Commandn::Commandn():Command{110}{}
 CommandN::CommandN():Command{78}{}
 CommandCtrlf::CommandCtrlf():Command{6}{}
 CommandCtrlg::CommandCtrlg():Command{7}{}
+Commandq::Commandq():Command{113}{}
 
 void CommandUp::run(Window *w) const{ w->getCursor()->moveY(-1); }
 void CommandDown::run(Window *w) const{ w->getCursor()->moveY(1); }
@@ -141,8 +142,8 @@ void find(Window *w, const int &direction, const char &target){
     }
 }
 
-void Commandf::run(Window *w) const{ find(w, 1, getch()); }
-void CommandF::run(Window *w) const{ find(w, -1, getch()); }
+void Commandf::run(Window *w) const{ find(w, 1, w->getKeyListener()->get()); }
+void CommandF::run(Window *w) const{ find(w, -1, w->getKeyListener()->get()); }
 
 void startSearch(Window *w, const std::string &target, const int &direction){
     if(target.empty()) return;
@@ -180,7 +181,7 @@ void longSearch(const char &commandChar, Window *w, const int &direction){
     w->showStatus(commandSymbol);
     w->getCursor()->moveTo(w->getMaxY()-1, 1);
     int ch;
-    while (ch = getch()){
+    while ((ch = w->getKeyListener()->get())){
         if(ch == 10){
             if(target.empty() && w->getKeyListener()->getSearched()){
                 target = w->getKeyListener()->getLatestSearch().first;
@@ -239,6 +240,17 @@ void CommandCtrlg::run(Window *w) const{
         " lines --" + std::to_string(curr_line * 100 / total_line) + "%--");
 }
 
+void Commandq::run(Window *w) const{
+    if(w->getKeyListener()->isRecording()){
+        w->getKeyListener()->stopRecording();
+    }else{
+        int ch = w->getKeyListener()->get();
+        if(std::isalnum(ch)) w->getKeyListener()->startRecording(ch);
+    }
+    w->showStatus("");
+}
+
+
 Commandi::Commandi():UndoableCommand{105}{}
 CommandI::CommandI():UndoableCommand{73}{}
 Commanda::Commanda():UndoableCommand{97}{}
@@ -251,11 +263,12 @@ CommandJ::CommandJ():UndoableCommand{74}{}
 Commando::Commando():UndoableCommand{111}{}
 CommandO::CommandO():UndoableCommand{79}{}
 CommandColon::CommandColon():UndoableCommand{58}{}
+CommandAt::CommandAt():UndoableCommand{64}{}
 
 std::vector<std::unique_ptr<Event>> enterInsertMode(const UndoableCommand *command, Window *w, const int &initShift, const bool &replace, const int &newline){
     std::vector<std::unique_ptr<Event>> events;
-    if(replace) w->showStatus("-- REPLACE -- ");
-    else w->showStatus("-- INSERT -- ");
+    if(replace) w->showStatus("-- REPLACE --");
+    else w->showStatus("-- INSERT --");
     w->setState(STATE_INSERT);
     w->getCursor()->moveX(initShift);
     int ch;
@@ -279,7 +292,7 @@ std::vector<std::unique_ptr<Event>> enterInsertMode(const UndoableCommand *comma
         }
         w->render();
     }
-    while (ch = getch()) {
+    while ((ch = w->getKeyListener()->get())) {
         if (ch == 27) break;  // escape
         else if (ch >= 258 && ch <= 261 ){
             if(inserted){
@@ -408,7 +421,7 @@ void CommandX::reverseExecute(Window *w, Event *e) const{ restoreStore(w, dynami
 
 
 std::vector<std::unique_ptr<Event>> Commandr::runEvent(Window *w) const{
-    int ch = getch();
+    int ch = w->getKeyListener()->get();
     std::vector<std::unique_ptr<Event>> events;
     if(!w->getCursor()->currChar()) return events;
     w->setState(STATE_INSERT);
@@ -471,7 +484,7 @@ std::vector<std::unique_ptr<Event>> CommandColon::runEvent(Window *w) const{
     w->showStatus(commandSymbol);
     w->getCursor()->moveTo(w->getMaxY()-1, 1);
     int ch;
-    while (ch = getch()){
+    while ((ch = w->getKeyListener()->get())){
         if(ch == 10){
             if(commandString == "q!"){
                 w->setRunning(false);
@@ -548,3 +561,22 @@ std::vector<std::unique_ptr<Event>> CommandColon::runEvent(Window *w) const{
     return events;
 }
 void CommandColon::reverseExecute(Window *w, Event *e) const{ restoreStore(w, dynamic_cast<StoreChangeEvent*>(e)); }
+
+
+
+std::vector<std::unique_ptr<Event>> CommandAt::runEvent(Window *w) const{
+    std::vector<std::unique_ptr<Event>> events;
+
+    int ch = w->getKeyListener()->get();
+    if(w->getKeyListener()->getMacros().find(ch) != w->getKeyListener()->getMacros().end()){
+        std::unique_ptr<Store> preStore = std::make_unique<Store>(*(w->getStore()));
+        int cursorY = std::distance(w->getStore()->getStrs().begin(), w->getCursor()->getItLst());
+        int cursorX = std::distance((w->getCursor()->getItLst())->begin(), w->getCursor()->getItStr());
+        w->getKeyListener()->stream(w->getKeyListener()->getMacros()[ch], w);
+        events.push_back(std::make_unique<StoreChangeEvent>(this, std::move(preStore), cursorY, cursorX));
+    }
+
+    return events;
+}
+
+void CommandAt::reverseExecute(Window *w, Event *e) const{ restoreStore(w, dynamic_cast<StoreChangeEvent*>(e)); }
