@@ -4,17 +4,19 @@
 #include "command.h"
 #include "event.h"
 #include "window.h"
+#include "saver.h"
 
 KeyListener::KeyListener():searched{false}{}
 
 void KeyListener::init(Window *window) {
     int c;
-    while(c = getch()){
+    while(window->isRunning() && (c = getch())){
         currKeys.push_back(c);
         if(commands.find(currKeys) != commands.end()){
             std::vector<std::unique_ptr<Event>> events = commands[currKeys]->execute(window);
             for(auto &e: events){
                 eventHistory.push(std::move(e));
+                window->getSaver()->setModified(true);
             }
         }else{
             window->showStatus(std::to_string(c));

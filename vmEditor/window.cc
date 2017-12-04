@@ -7,8 +7,10 @@
 #include "command.h"
 #include "event.h"
 #include "parser.h"
+#include "saver.h"
 #include "store.h"
 #include "utils.h"
+#include <signal.h>
 #include <stdlib.h>
 #include <locale>
 
@@ -220,13 +222,15 @@ bool Window::Cursor::isAtLineEnd() const { return isAtLineEnd(0); }
 void Window::Cursor::setState(CursorState cursorState){ this->cursorState = cursorState; }
 
 Window::Window(std::unique_ptr<KeyListener> keyListener,
-    std::unique_ptr<ColorManager> colorManager, std::unique_ptr<Parser> parser):
-    keyListener{std::move(keyListener)}, colorManager{std::move(colorManager)}, parser{std::move(parser)}, state{STATE_NORMAL}{
+    std::unique_ptr<ColorManager> colorManager, std::unique_ptr<Parser> parser,  std::unique_ptr<Saver> saver):
+    keyListener{std::move(keyListener)}, colorManager{std::move(colorManager)}, parser{std::move(parser)}, saver{std::move(saver)},
+    state{STATE_NORMAL}, running{true}{
 
     initscr();
     noecho();
     keypad(stdscr, true);
     set_escdelay(0);
+    signal(SIGINT, SIG_IGN);
     getmaxyx(stdscr, maxY, maxX);
     cursor = std::make_unique<Cursor>(0, 0, this);
 }
@@ -237,6 +241,7 @@ Window::~Window(){
 
 void Window::init(const std::string &fileName){
     store = std::move(parser->parse(fileName));
+    saver->init(parser.get(), store.get());
     cursor->init(store.get());
     colorManager->init(parser->getFileName());
     showStatus("\""+ fileName + "\" " + std::to_string(parser->getlCount()) + "L, " + std::to_string(parser->getcCount()) + "C");
@@ -267,8 +272,10 @@ void Window::refreshCursor(){
     move(cursor->getY(), cursor->getX());
 }
 
-void Window::showStatus(){
-    colorManager->mvprint(maxY-1, 0, status + "\n", false);
+void Window::showStatus(const StatusState &statusState){
+    if(statusState == STATE_GENERAL) colorManager->mvprint(maxY-1, 0, status + "\n", false);
+    else colorManager->mvprintColor(maxY-1, 0, status + "\n", COLOR_WHITE, COLOR_RED);
+
     std::string nLine = std::to_string(cursor->getNLine());
     std::string nChar = cursor->getNChar() > 0 ? std::to_string(cursor->getNChar()) : "0-1";
     colorManager->mvprint(maxY-1, maxX-17-nLine.length(),  nLine + "," + nChar + "\n", false);
@@ -276,12 +283,13 @@ void Window::showStatus(){
     refreshCursor();
     refresh();
 }
+void Window::showStatus(){ showStatus(STATE_GENERAL); }
 
-void Window::showStatus(const std::string &status){
+void Window::showStatus(const std::string &status, const StatusState &statusState){
     this->status = status;
-    showStatus();
+    showStatus(statusState);
 }
-
+void Window::showStatus(const std::string &status){showStatus(status, STATE_GENERAL); }
 
 const int Window::getMaxY() const{ return maxY; }
 const int Window::getMaxX() const{ return maxX; }
@@ -289,7 +297,10 @@ const int Window::getStateLineEnd() const{ if (state == STATE_INSERT) return 1; 
 void Window::setState(State state){ this->state = state; }
 Window::Cursor* Window::getCursor() { return cursor.get(); }
 Parser* Window::getParser(){ return parser.get(); }
+Saver* Window::getSaver(){ return saver.get(); }
 Store* Window::getStore() { return store.get(); }
 std::unique_ptr<Store> &Window::getUniqueStore() { return store; }
 KeyListener* Window::getKeyListener(){ return keyListener.get(); }
 ColorManager* Window::getColorManager(){ return colorManager.get(); }
+bool Window::isRunning() const{ return running; }
+void Window::setRunning(const bool &running){ this->running = running; }

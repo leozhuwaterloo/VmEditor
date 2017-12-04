@@ -7,10 +7,12 @@
 class KeyListener;
 class ColorManager;
 class Parser;
+class Saver;
 class Store;
 
 enum State { STATE_INSERT, STATE_NORMAL };
 enum CursorState { STATE_STATUS, STATE_EDIT };
+enum StatusState { STATE_GENERAL, STATE_ERROR };
 
 class Window{
     class Cursor{
@@ -60,19 +62,23 @@ private:
     std::unique_ptr<KeyListener> keyListener;
     std::unique_ptr<ColorManager> colorManager;
     std::unique_ptr<Parser> parser;
+    std::unique_ptr<Saver> saver;
     std::unique_ptr<Store> store;
     std::string status;
     State state;
+    bool running;
 public:
     Window(std::unique_ptr<KeyListener> keyListener,
-        std::unique_ptr<ColorManager> colorManager, std::unique_ptr<Parser> parser);
+        std::unique_ptr<ColorManager> colorManager, std::unique_ptr<Parser> parser, std::unique_ptr<Saver> saver);
     ~Window();
 
     void init(const std::string &fileName);
     void render();
     void resize();
     void refreshCursor();
+    void showStatus(const StatusState &statusState);
     void showStatus();
+    void showStatus(const std::string &status, const StatusState &statusState);
     void showStatus(const std::string &status);
 
     const int getMaxY() const;
@@ -81,10 +87,13 @@ public:
     void setState(State state);
     Cursor* getCursor();
     Parser* getParser();
+    Saver* getSaver();
     Store* getStore();
     std::unique_ptr<Store> &getUniqueStore();
     KeyListener* getKeyListener();
     ColorManager* getColorManager();
+    bool isRunning() const;
+    void setRunning(const bool &running);
 };
 
 #endif

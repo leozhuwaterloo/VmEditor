@@ -15,7 +15,10 @@ int main(int argc, char **argv){
 	}
 
 
-	unique_ptr<Window> window = make_unique<Window>(make_unique<KeyListener>(), make_unique<ColorManager>(), make_unique<DefaultParser>());
+	unique_ptr<Window> window = make_unique<Window>(make_unique<KeyListener>(),
+		make_unique<ColorManager>(),
+		make_unique<DefaultParser>(),
+		make_unique<DefaultSaver>());
 	initCommands(window->getKeyListener());
 	initColors(window->getColorManager());
 

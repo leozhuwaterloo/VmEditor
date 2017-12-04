@@ -9,6 +9,7 @@
 #include <stack>
 #include <regex>
 #include "parser.h"
+#include "saver.h"
 
 /*
 https://www.fprintf.net/vimCheatSheet.html
@@ -18,6 +19,8 @@ https://www.fprintf.net/vimCheatSheet.html
 cc c[any motion] dd d[any motion] p q s yy y[any motion]
 P S . ; % @
 ^b ^d ^u
+
+:r :0 :$ :line-number
 */
 
 Command::Command(std::initializer_list<int> keys):keys{keys}{}
@@ -60,6 +63,7 @@ Commandn::Commandn():Command{110}{}
 CommandN::CommandN():Command{78}{}
 CommandCtrlf::CommandCtrlf():Command{6}{}
 CommandCtrlg::CommandCtrlg():Command{7}{}
+CommandColon::CommandColon():Command{58}{}
 
 void CommandUp::run(Window *w) const{ w->getCursor()->moveY(-1); }
 void CommandDown::run(Window *w) const{ w->getCursor()->moveY(1); }
@@ -230,8 +234,50 @@ void CommandCtrlf::run(Window *w) const{
 }
 
 
+void CommandColon::run(Window *w) const{
+    set_escdelay(1000);
+    w->getCursor()->setState(STATE_STATUS);
+    std::string commandSymbol = ":";
+    std::string commandString;
+    w->showStatus(commandSymbol);
+    w->getCursor()->moveTo(w->getMaxY()-1, 1);
+    int ch;
+    while (ch = getch()){
+        if(ch == 10){
+            if(commandString == "q!"){
+                w->setRunning(false);
+            } else if (commandString == "w"){
+                w->getSaver()->save();
+            } else if (commandString == "wq"){
+                w->getSaver()->save();
+                w->setRunning(false);
+            } else if (commandString == "q"){
+                if (!w->getSaver()->getModified()) w->setRunning(false);
+                else w->showStatus("E37: No write since last change (add ! to override)", STATE_ERROR);
+            } else {
+                w->showStatus("E492: Not an editor command: " +  commandString, STATE_ERROR);
+            }
+            break;
+        }
+        else if(ch == 27){w->showStatus(""); break;}
+        else if (ch == 410) w->resize();
+        else{
+            if(ch == 8 || ch == 263){
+                commandString = commandString.substr(0, commandString.length()-1);
+            } else {
+                commandString += std::string(1, ch);
+            }
+            w->showStatus(commandSymbol + commandString);
+            w->getCursor()->moveTo(w->getMaxY()-1, commandString.length() + 1);
+        }
+    }
+    w->getCursor()->setState(STATE_EDIT);
+    w->refreshCursor();
+    set_escdelay(0);
+}
+
 void CommandCtrlg::run(Window *w) const{
-    bool modified = !(w->getKeyListener()->getEventHistory().empty());
+    bool modified = w->getSaver()->getModified();
     int total_line = w->getStore()->getStrs().size();
     int curr_line = std::distance(w->getStore()->getStrs().begin(), w->getCursor()->getItLst()) + 1;
     w->showStatus("\""+ w->getParser()->getFileName() + "\" " + (modified ? "[Modified] " : "") + std::to_string(total_line) +

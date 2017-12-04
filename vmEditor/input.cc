@@ -1,5 +1,5 @@
 #include "window.h"
-#include <ncurses.h>
+#123include <ncurses.h>
 #include "keylistener.h"
 #include "colormanager.h"
 #include "command.h"
@@ -24,3 +24,4 @@ I am a comment
 a
 
 ColorManager* Window::getColorManager(){ return colorManager.get(); }}
+}}
