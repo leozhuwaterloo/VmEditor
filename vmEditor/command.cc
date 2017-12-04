@@ -296,7 +296,7 @@ void restoreStore(Window *w, StoreChangeEvent* storeChangeEvent){
         itLst = w->getStore()->getStrs().begin();
         for(int i = 0; i < storeChangeEvent->getCursorY(); ++i) ++itLst;
         itStr = w->getCursor()->getItLst()->begin();
-        itStr += clampReturn(storeChangeEvent->getCursorX(), 0, itLst->length()-1);
+        if (itLst->length() != 0) itStr += clampReturn(storeChangeEvent->getCursorX(), 0, itLst->length()-1);
         w->getCursor()->adjust();
         w->render();
     }
