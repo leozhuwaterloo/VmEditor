@@ -19,8 +19,6 @@ https://www.fprintf.net/vimCheatSheet.html
 cc c[any motion] dd d[any motion] p q s yy y[any motion]
 P S . ; % @
 ^b ^d ^u
-
-:r :0 :$ :line-number
 */
 
 Command::Command(std::initializer_list<int> keys):keys{keys}{}
@@ -63,7 +61,6 @@ Commandn::Commandn():Command{110}{}
 CommandN::CommandN():Command{78}{}
 CommandCtrlf::CommandCtrlf():Command{6}{}
 CommandCtrlg::CommandCtrlg():Command{7}{}
-CommandColon::CommandColon():Command{58}{}
 
 void CommandUp::run(Window *w) const{ w->getCursor()->moveY(-1); }
 void CommandDown::run(Window *w) const{ w->getCursor()->moveY(1); }
@@ -125,6 +122,7 @@ void Commandu::run(Window *w) const{
         topEvent->restore(w);
         eventHistory.pop();
         topEvent.reset();
+        if(eventHistory.empty()) w->getSaver()->setModified(false);
     }
 }
 
@@ -233,49 +231,6 @@ void CommandCtrlf::run(Window *w) const{
     w->render();
 }
 
-
-void CommandColon::run(Window *w) const{
-    set_escdelay(1000);
-    w->getCursor()->setState(STATE_STATUS);
-    std::string commandSymbol = ":";
-    std::string commandString;
-    w->showStatus(commandSymbol);
-    w->getCursor()->moveTo(w->getMaxY()-1, 1);
-    int ch;
-    while (ch = getch()){
-        if(ch == 10){
-            if(commandString == "q!"){
-                w->setRunning(false);
-            } else if (commandString == "w"){
-                w->getSaver()->save();
-            } else if (commandString == "wq"){
-                w->getSaver()->save();
-                w->setRunning(false);
-            } else if (commandString == "q"){
-                if (!w->getSaver()->getModified()) w->setRunning(false);
-                else w->showStatus("E37: No write since last change (add ! to override)", STATE_ERROR);
-            } else {
-                w->showStatus("E492: Not an editor command: " +  commandString, STATE_ERROR);
-            }
-            break;
-        }
-        else if(ch == 27){w->showStatus(""); break;}
-        else if (ch == 410) w->resize();
-        else{
-            if(ch == 8 || ch == 263){
-                commandString = commandString.substr(0, commandString.length()-1);
-            } else {
-                commandString += std::string(1, ch);
-            }
-            w->showStatus(commandSymbol + commandString);
-            w->getCursor()->moveTo(w->getMaxY()-1, commandString.length() + 1);
-        }
-    }
-    w->getCursor()->setState(STATE_EDIT);
-    w->refreshCursor();
-    set_escdelay(0);
-}
-
 void CommandCtrlg::run(Window *w) const{
     bool modified = w->getSaver()->getModified();
     int total_line = w->getStore()->getStrs().size();
@@ -295,6 +250,7 @@ CommandR::CommandR():UndoableCommand{82}{}
 CommandJ::CommandJ():UndoableCommand{74}{}
 Commando::Commando():UndoableCommand{111}{}
 CommandO::CommandO():UndoableCommand{79}{}
+CommandColon::CommandColon():UndoableCommand{58}{}
 
 std::vector<std::unique_ptr<Event>> enterInsertMode(const UndoableCommand *command, Window *w, const int &initShift, const bool &replace, const int &newline){
     std::vector<std::unique_ptr<Event>> events;
@@ -504,3 +460,91 @@ std::vector<std::unique_ptr<Event>> Commando::runEvent(Window *w) const{ return 
 void Commando::reverseExecute(Window *w, Event *e) const{ restoreStore(w, dynamic_cast<StoreChangeEvent*>(e)); }
 std::vector<std::unique_ptr<Event>> CommandO::runEvent(Window *w) const{ return enterInsertMode(this, w, 0, false, -1); }
 void CommandO::reverseExecute(Window *w, Event *e) const{ restoreStore(w, dynamic_cast<StoreChangeEvent*>(e)); }
+
+
+std::vector<std::unique_ptr<Event>> CommandColon::runEvent(Window *w) const{
+    std::vector<std::unique_ptr<Event>> events;
+    set_escdelay(1000);
+    w->getCursor()->setState(STATE_STATUS);
+    std::string commandSymbol = ":";
+    std::string commandString;
+    w->showStatus(commandSymbol);
+    w->getCursor()->moveTo(w->getMaxY()-1, 1);
+    int ch;
+    while (ch = getch()){
+        if(ch == 10){
+            if(commandString == "q!"){
+                w->setRunning(false);
+            } else if (commandString == "w"){
+                w->getSaver()->save();
+                w->showStatus("");
+            } else if (commandString == "wq"){
+                w->getSaver()->save();
+                w->setRunning(false);
+            } else if (commandString == "q"){
+                if (!w->getSaver()->getModified()) w->setRunning(false);
+                else w->showStatus("E37: No write since last change (add ! to override)", STATE_ERROR);
+            } else if (commandString == "r"){
+                w->getCursor()->setState(STATE_EDIT);
+                std::unique_ptr<Store> preStore = std::make_unique<Store>(*(w->getStore()));
+                int cursorY = std::distance(w->getStore()->getStrs().begin(), w->getCursor()->getItLst());
+                int cursorX = std::distance((w->getCursor()->getItLst())->begin(), w->getCursor()->getItStr());
+                std::list<std::string> strs = w->getStore()->getStrs();
+                w->getStore()->getStrs().insert(std::next(w->getCursor()->getItLst(), 1), strs.begin(), strs.end());
+                w->render();
+                w->getCursor()->adjust();
+                w->getCursor()->moveY(1);
+                w->getCursor()->moveLineBegin();
+                w->showStatus("");
+                events.push_back(std::make_unique<StoreChangeEvent>(this, std::move(preStore), cursorY, cursorX));
+            } else if (commandString == "0"){
+                w->getCursor()->setState(STATE_EDIT);
+                w->getCursor()->moveLineBegin();
+                int currYDis = std::distance(w->getStore()->getStrs().begin(), w->getCursor()->getItLst());
+                for(int i = 0; i < currYDis; ++i) w->getCursor()->moveY(-1);
+                w->showStatus("");
+            } else if (commandString == "$"){
+                w->getCursor()->setState(STATE_EDIT);
+                w->getCursor()->moveLineBegin();
+                int currYDis = std::distance(w->getStore()->getStrs().begin(), w->getCursor()->getItLst());
+                int totalLine = w->getStore()->getStrs().size();
+                for(int i = currYDis; i < totalLine; ++i) w->getCursor()->moveY(1);
+                w->showStatus("");
+            } else if (isNumber(commandString)){
+                w->getCursor()->setState(STATE_EDIT);
+                w->getCursor()->moveLineBegin();
+                long currLine = std::distance(w->getStore()->getStrs().begin(), w->getCursor()->getItLst()) + 1;
+                long targetLine = atoi(commandString.c_str());
+                while(currLine != targetLine){
+                    if(currLine > targetLine){
+                        w->getCursor()->moveY(-1);
+                        --currLine;
+                    } else {
+                        w->getCursor()->moveY(1);
+                        ++currLine;
+                    }
+                }
+                w->showStatus("");
+            } else {
+                w->showStatus("E492: Not an editor command: " +  commandString, STATE_ERROR);
+            }
+            break;
+        }
+        else if(ch == 27){w->showStatus(""); break;}
+        else if (ch == 410) w->resize();
+        else{
+            if(ch == 8 || ch == 263){
+                commandString = commandString.substr(0, commandString.length()-1);
+            } else {
+                commandString += std::string(1, ch);
+            }
+            w->showStatus(commandSymbol + commandString);
+            w->getCursor()->moveTo(w->getMaxY()-1, commandString.length() + 1);
+        }
+    }
+    w->getCursor()->setState(STATE_EDIT);
+    w->refreshCursor();
+    set_escdelay(0);
+    return events;
+}
+void CommandColon::reverseExecute(Window *w, Event *e) const{ restoreStore(w, dynamic_cast<StoreChangeEvent*>(e)); }

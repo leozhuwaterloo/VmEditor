@@ -29,5 +29,11 @@ inline std::string trim(const std::string &str) {
     return str.substr(begin, end - begin + 1);
 }
 
+inline bool isNumber(const std::string& str)
+{
+    std::string::const_iterator it = str.begin();
+    while (it != str.end() && std::isdigit(*it)) ++it;
+    return !str.empty() && it == str.end();
+}
 
 #endif

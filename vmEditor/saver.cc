@@ -16,7 +16,7 @@ void Saver::setModified(const bool &modified){ this->modified = modified; }
 
 
 bool DefaultSaver::runSave(){
-    std::fstream f {parser->getFileName()};
+    std::fstream f {parser->getFileName(), std::ios_base::out};
     for(auto &it : store->getStrs()){
         f << it << std::endl;
     }
