@@ -524,12 +524,34 @@ std::vector<std::unique_ptr<Event>> CommandColon::runEvent(Window *w) const{
         if(ch == 10){
             if(commandString == "q!"){
                 w->setRunning(false);
-            } else if (commandString == "w"){
-                w->getSaver()->save();
-                w->showStatus("");
-            } else if (commandString == "wq"){
-                w->getSaver()->save();
-                w->setRunning(false);
+            } else if ((commandString + " ").substr(0, 2) == "w "){
+                bool nameChanged = false;
+                if(w->getParser()->getFileName().empty()){
+                    std::string fileName = (commandString + " ").substr(2, commandString.length()-2);
+                    if (fileName.empty()) w->showStatus("E32: No file name", STATE_ERROR);
+                    else{ w->getParser()->setFileName(fileName); nameChanged = true; }
+                }
+                if(!w->getParser()->getFileName().empty()){
+                    if(!w->getSaver()->save()){
+                        w->showStatus("E0: Failed to save", STATE_ERROR);
+                    }else{
+                        w->showStatus("");
+                        if(nameChanged) w->render();
+                    }
+                }
+            } else if ((commandString + " ").substr(0, 3) == "wq "){
+                if(w->getParser()->getFileName().empty()){
+                    std::string fileName = (commandString + " ").substr(3, commandString.length()-3);
+                    if (fileName.empty()) w->showStatus("E32: No file name", STATE_ERROR);
+                    else w->getParser()->setFileName(fileName);
+                }
+                if(!w->getParser()->getFileName().empty()){
+                    if(!w->getSaver()->save()){
+                        w->showStatus("E0: Failed to save", STATE_ERROR);
+                    }else{
+                        w->setRunning(false);
+                    }
+                }
             } else if (commandString == "q"){
                 if (!w->getSaver()->getModified()) w->setRunning(false);
                 else w->showStatus("E37: No write since last change (add ! to override)", STATE_ERROR);

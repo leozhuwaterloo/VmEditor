@@ -12,7 +12,7 @@ protected:
 public:
     Saver() = default;
     virtual ~Saver() = default;
-    void save();
+    bool save();
     virtual bool runSave() = 0;
     void init(Parser *parser, Store *store);
     bool getModified() const;

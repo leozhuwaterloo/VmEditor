@@ -181,9 +181,17 @@ void Window::Cursor::insert(char c) {
         std::string second_half = std::string(itStr, itLst->end());
         (*itLst) = first_half;
         ++itLst;
+        ++nLine;
         itLst = window->getStore()->getStrs().insert(itLst, second_half);
         itStr = itLst->begin();
+        nChar = 0;
         adjust(); //too tired to writing another logic just call adjust
+        window->showStatus();
+    }else if(c == 9){
+        for(int i = 0; i< 4; ++i){
+            itStr = itLst->insert(itStr, ' ');
+            moveX(1);
+        }
     }else{
         itStr = itLst->insert(itStr, c);
         moveX(1);
@@ -196,10 +204,13 @@ void Window::Cursor::erase() {
             std::string currLineContent = *itLst;
             itLst = window->getStore()->getStrs().erase(itLst);
             --itLst;
+            --nLine;
             int length = itLst->length();
             (*itLst) += currLineContent;
             itStr = itLst->begin() + length;
+            nChar = length;
             adjust();
+            window->showStatus();
         }
     }else{
         moveX(-1);
@@ -243,8 +254,9 @@ void Window::init(const std::string &fileName){
     store = std::move(parser->parse(fileName));
     saver->init(parser.get(), store.get());
     cursor->init(store.get());
-    colorManager->init(parser->getFileName());
-    showStatus("\""+ fileName + "\" " + std::to_string(parser->getlCount()) + "L, " + std::to_string(parser->getcCount()) + "C");
+    colorManager->init(parser.get());
+    if(!parser->isNewFile()) showStatus("\""+ fileName + "\" " + std::to_string(parser->getlCount()) + "L, " + std::to_string(parser->getcCount()) + "C");
+    else if(parser->isNewFile() && !parser->getFileName().empty())  showStatus("\""+ fileName + "\" [Newfile]");
     render();
     keyListener->init(this);
 }

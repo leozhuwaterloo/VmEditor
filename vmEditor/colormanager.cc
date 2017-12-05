@@ -3,12 +3,13 @@
 #include <sstream>
 #include "highlightergroup.h"
 #include "highlighter.h"
+#include "parser.h"
 
 void ColorManager::addColor(const int &fontColor, const int &bgColor){ colors[fontColor][bgColor] = (++colorCounter); }
 
 void ColorManager::addHighlighterGroup(std::unique_ptr<HighlighterGroup> highlighterGroup){ highlighterGroups.push_back(std::move(highlighterGroup));}
 
-void ColorManager::init(const std::string &fileName){
+void ColorManager::init(Parser *parser){
     start_color();
 
     for(auto &it1 : colors){
@@ -17,7 +18,7 @@ void ColorManager::init(const std::string &fileName){
         }
     }
 
-    this->fileName = fileName;
+    this->parser = parser;
 }
 
 void ColorManager::print(const std::string &str, const bool &highlight){
@@ -25,9 +26,8 @@ void ColorManager::print(const std::string &str, const bool &highlight){
         std::string _str = str;
         std::map<int, std::map<int, std::pair<int, int>>> highlight;
         for(auto &it: highlighterGroups){
-            if(it->match(fileName)) it->apply(_str, highlight);
+            if(it->match(parser->getFileName())) it->apply(_str, highlight);
         }
-
         std::stringstream ss{_str};
         ss >> std::noskipws;
         char c;

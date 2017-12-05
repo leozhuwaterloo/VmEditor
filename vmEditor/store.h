@@ -9,7 +9,6 @@ private:
     int currY, numInvalid, displayedLine;
     std::list<std::string>::const_iterator itCurrY;
 public:
-    Store() = default;
     Store(std::list<std::string> strs);
     Store(const Store &other);
     ~Store() = default;

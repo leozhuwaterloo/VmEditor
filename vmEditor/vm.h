@@ -97,13 +97,13 @@ void initHighlighter(ColorManager *colorManager){
 
     std::vector<std::string> yellowKeywords{"and","and_eq","asm","bitand","bitor","break","case","catch","compl","continue","default","delete","do","else","sizeof","switch","this","throw","try","typeid","while","xor","xor_eq","for","friend","goto","if","new","not","not_eq","operator","or","or_eq","private","protected","public","using"};
     for(auto &it: yellowKeywords){
-        highlighterGroup->addHighlighter(std::make_unique<Highlighter>(std::regex("\\W("+it+")\\W"), COLOR_YELLOW));
+        highlighterGroup->addHighlighter(std::make_unique<Highlighter>(std::regex("\\W("+it+")\\W|^("+it+")\\W"), COLOR_YELLOW));
     }
     highlighterGroup->addHighlighter(std::make_unique<Highlighter>(std::regex("(\\w+?)\\:"), COLOR_YELLOW));
 
     std::vector<std::string> greenKeywords{"auto","bool","char","class","const","enum","explicit","export","double","enum","extern","float","inline","int","long","mutable","namespace","register","short","signed","static","struct","register","typedef","typename","union","unsigned","virtual","void","volatile","wchar_t","template"};
     for(auto &it: greenKeywords){
-        highlighterGroup->addHighlighter(std::make_unique<Highlighter>(std::regex("\\W("+it+")\\W"), COLOR_GREEN));
+        highlighterGroup->addHighlighter(std::make_unique<Highlighter>(std::regex("\\W("+it+")\\W|^("+it+")\\W"), COLOR_GREEN));
     }
 
     highlighterGroup->addHighlighter(std::make_unique<Highlighter>(std::regex("(//.*)|(/\\*[\\w\\W]*?\\*/)"), COLOR_BLUE));

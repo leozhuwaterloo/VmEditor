@@ -3,8 +3,9 @@
 #include "parser.h"
 #include "store.h"
 
-void Saver::save(){
-    if(runSave()) modified = false;
+bool Saver::save(){
+    if(parser->getFileName().empty()) return false;
+    else{ if(runSave()){ modified = false; return true; } else return false; }
 }
 void Saver::init(Parser *parser, Store *store){
     this->parser = parser;
