@@ -77,6 +77,7 @@ void initColors(ColorManager *colorManager){
     colorManager->addColor(COLOR_WHITE, COLOR_BLACK);
     colorManager->addColor(COLOR_CYAN, COLOR_BLACK);
     colorManager->addColor(COLOR_WHITE, COLOR_RED);
+    colorManager->addColor(COLOR_WHITE, COLOR_CYAN);
     initHighlighter(colorManager);
 }
 

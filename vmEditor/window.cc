@@ -138,11 +138,60 @@ void Window::Cursor::moveX(const int &x){
             this->x += window->getMaxX();
             --y;
         }
-
         this->x += x;
         itStr += x;
         nChar += x;
         preX = window->getMaxX() * xLoss + this->x;
+        if(currChar() == '(' || currChar() == '[' || currChar() == '{' || currChar() == ')' || currChar() == ']' || currChar() == '}'){
+            std::list<std::string>::iterator initItLst = getItLst();
+            std::string::iterator initItStr = getItStr();
+            int numB1 = 0, numB2 = 0, numB3 = 0;
+            int direction = 1;
+
+            if(currChar() == '(') ++numB1;
+            else if(currChar() == '[') ++numB2;
+            else if(currChar() == '{') ++numB3;
+            else if(currChar() == ')') --numB1;
+            else if(currChar() == ']') --numB2;
+            else if(currChar() == '}') --numB3;
+
+            if(currChar() == ')' || currChar() == ']' || currChar() == '}') direction = -1;
+
+            while(numB1 != 0 || numB2 != 0 || numB3 != 0){
+                if(direction == 1 && initItStr != initItLst->end()) ++(initItStr);
+                else if(direction == -1 && initItStr != initItLst->begin()) --(initItStr);
+                if(direction==1 && initItStr == initItLst->end()){
+                    ++(initItLst);
+                    if(initItLst == window->getStore()->getStrs().end()) break;
+                    initItStr = initItLst->begin();
+                }else if(direction == -1 && initItStr == initItLst->begin()){
+                    char current = *(initItStr);
+                    if(current == '(') ++numB1;
+                    else if(current == ')') --numB1;
+                    else if(current == '[') ++numB2;
+                    else if(current == ']') --numB2;
+                    else if(current == '{') ++numB3;
+                    else if(current == '}') --numB3;
+
+                    if(initItLst == window->getStore()->getStrs().begin()) break;
+                    --(initItLst);
+                    initItStr = initItLst->end();
+                    continue;
+                }
+
+                char current = *(initItStr);
+                if(current == '(') ++numB1;
+                else if(current == ')') --numB1;
+                else if(current == '[') ++numB2;
+                else if(current == ']') --numB2;
+                else if(current == '{') ++numB3;
+                else if(current == '}') --numB3;
+            }
+
+            if(numB1 != 0 || numB2 != 0 || numB3 != 0){
+                window->getColorManager()->mvprintColor(this->y, this->x, std::string(1, currChar()), COLOR_WHITE, COLOR_CYAN);
+            }
+        }
         window->refreshCursor();
         window->showStatus();
     }
